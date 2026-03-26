@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Press_Start_2P, VT323 } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
+import { AuthProvider } from '@/lib/auth-context'
 import './globals.css'
 
 const pressStart2P = Press_Start_2P({ 
@@ -53,8 +54,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark">
       <body className={`${pressStart2P.variable} ${vt323.variable} font-sans antialiased min-h-screen`}>
-        {children}
-        <Toaster 
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+        <Toaster
           position="top-right"
           toastOptions={{
             style: {
