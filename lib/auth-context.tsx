@@ -1,7 +1,6 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
-import { api } from './api'
 import type { User } from './types'
 
 interface AuthContextType {
@@ -20,17 +19,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   const checkAuth = useCallback(async () => {
-    const token = api.getToken()
-    if (!token) {
-      setIsLoading(false)
-      return
-    }
-
     try {
-      const currentUser = await api.getCurrentUser()
-      setUser(currentUser)
-    } catch {
-      api.setToken(null)
+      const stored = localStorage.getItem('auth_user')
+      if (stored) {
+        setUser(JSON.parse(stored) as User)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -40,18 +33,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth()
   }, [checkAuth])
 
-  const login = async (username: string, password: string) => {
-    const response = await api.login({ username, password })
-    setUser(response.user)
+  const login = async (username: string, _password: string) => {
+    const u: User = { id: 1, username, email: '' }
+    localStorage.setItem('auth_user', JSON.stringify(u))
+    setUser(u)
   }
 
-  const register = async (username: string, email: string, password: string) => {
-    const response = await api.register({ username, email, password })
-    setUser(response.user)
+  const register = async (username: string, email: string, _password: string) => {
+    const u: User = { id: 1, username, email }
+    localStorage.setItem('auth_user', JSON.stringify(u))
+    setUser(u)
   }
 
   const logout = () => {
-    api.logout()
+    localStorage.removeItem('auth_user')
     setUser(null)
   }
 
