@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"RequestMapping\\\\|PostMapping\\\\|GetMapping\\\\|PutMapping\\\\|DeleteMapping\" C:/Users/silve/IdeaProjects/ragnarok-core --include=*.java -l)",
+      "Bash(xargs grep:*)",
+      "Bash(ls C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/app/\\\\\\(game\\\\\\)/)",
+      "Bash(ls C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/app/\\\\\\(auth\\\\\\)/)",
+      "Bash(ls \"C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/app/\\(game\\)/game/\")",
+      "Bash(ls \"C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/app/\\(game\\)/create-character/\")",
+      "Bash(ls \"C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/app/\\(game\\)/select-character/\")",
+      "Bash(cat \"C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/app/\\(game\\)/game/page.tsx\")",
+      "Bash(cat \"C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/app/\\(game\\)/layout.tsx\")",
+      "Bash(npx tsc:*)",
+      "Bash(npm -v)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/nodejs\")",
+      "Bash(cmd /c \"where node 2>&1\")",
+      "Bash(cmd /c \"where node\")",
+      "Bash(cmd /c \"node --version 2>&1\")",
+      "Bash(cmd /c \"powershell -command \\\\\"Get-Command node -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\\\\\"\")",
+      "Bash(cmd /c \"powershell -command \\\\\"Get-ChildItem -Path 'C:\\\\\\\\' -Filter 'node.exe' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 5 FullName\\\\\"\")",
+      "Bash(export PATH=\"$PATH:/c/Users/silve/AppData/Local/claude-cli-nodejs\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(grep -l \"Dialog\\\\|DialogContent\\\\|DialogHeader\" \"C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/components/ui\"/*.tsx)",
+      "Bash(cmd /c \"cd /d C:\\\\\\\\Users\\\\\\\\silve\\\\\\\\IdeaProjects\\\\\\\\ragnarok-simulator\\\\\\\\ragnarok-front && npx tsc --noEmit 2>&1\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\silve\\\\IdeaProjects\\\\ragnarok-simulator\\\\ragnarok-front && npx tsc --noEmit\")",
+      "Bash(cmd /c \"powershell -NoProfile -Command \\\\\"Set-Location 'C:\\\\\\\\Users\\\\\\\\silve\\\\\\\\IdeaProjects\\\\\\\\ragnarok-simulator\\\\\\\\ragnarok-front'; npx tsc --noEmit 2>&1 | Out-String\\\\\"\" 2>&1)"
+    ]
+  }
+}
