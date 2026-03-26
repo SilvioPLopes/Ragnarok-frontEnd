@@ -1,9 +1,13 @@
 // lib/types.ts
 
+export type JobClass =
+  | 'NOVICE' | 'SWORDSMAN' | 'MAGE' | 'ARCHER' | 'THIEF' | 'MERCHANT' | 'ACOLYTE'
+  | 'KNIGHT' | 'WIZARD' | 'HUNTER' | 'ASSASSIN' | 'BLACKSMITH' | 'PRIEST'
+
 export interface PlayerResponse {
   id: number
   name: string
-  jobClass: string
+  jobClass: JobClass
   baseLevel: number
   jobLevel: number
   hpCurrent: number
@@ -78,3 +82,19 @@ export interface FraudResponse {
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
   reason?: string
 }
+
+export interface User {
+  id: number
+  username: string
+  email: string
+}
+
+export interface ClassChangeRequirement {
+  targetClass: JobClass
+  requiredJobLevel: number
+  requiredZeny?: number
+  requiredItems?: { itemId: number; quantity: number }[]
+}
+
+/** Alias para compatibilidade com imports existentes em select-character e class-change-panel */
+export type Player = PlayerResponse
