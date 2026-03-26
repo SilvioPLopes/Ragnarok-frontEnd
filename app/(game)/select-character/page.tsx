@@ -3,17 +3,16 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { api } from '@/lib/api'
 import { useAuth } from '@/lib/auth-context'
 import { useGame } from '@/lib/game-context'
 import type { Player, JobClass } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { toast } from 'sonner'
-import { 
-  Plus, 
-  Trash2, 
-  Play, 
+import {
+  Plus,
+  Trash2,
+  Play,
   LogOut,
   Sword,
   Shield,
@@ -59,7 +58,7 @@ const CLASS_COLORS: Record<JobClass, string> = {
 export default function SelectCharacterPage() {
   const router = useRouter()
   const { logout, user } = useAuth()
-  const { setPlayer } = useGame()
+  const { setPlayerId } = useGame()
   const [players, setPlayers] = useState<Player[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -73,73 +72,64 @@ export default function SelectCharacterPage() {
       id: 1,
       name: 'DemoKnight',
       jobClass: 'SWORDSMAN',
-      level: 25,
-      baseExp: 15000,
-      jobExp: 8000,
-      hp: 850,
-      maxHp: 1200,
-      mp: 80,
-      maxMp: 150,
+      baseLevel: 25,
+      jobLevel: 10,
+      hpCurrent: 850,
+      hpMax: 1200,
+      spCurrent: 80,
+      spMax: 150,
       str: 35,
       agi: 20,
       vit: 25,
-      int: 5,
+      intelligence: 5,
       dex: 15,
       luk: 10,
-      statusPoints: 12,
+      statPoints: 12,
       skillPoints: 5,
-      zeny: 25000,
-      currentMapId: 1,
-      posX: 100,
-      posY: 100,
+      zenny: 25000,
+      mapName: 'prontera',
     },
     {
       id: 2,
       name: 'DemoMage',
       jobClass: 'MAGE',
-      level: 18,
-      baseExp: 8500,
-      jobExp: 4200,
-      hp: 380,
-      maxHp: 500,
-      mp: 450,
-      maxMp: 600,
+      baseLevel: 18,
+      jobLevel: 8,
+      hpCurrent: 380,
+      hpMax: 500,
+      spCurrent: 450,
+      spMax: 600,
       str: 5,
       agi: 10,
       vit: 10,
-      int: 40,
+      intelligence: 40,
       dex: 25,
       luk: 15,
-      statusPoints: 8,
+      statPoints: 8,
       skillPoints: 3,
-      zeny: 18000,
-      currentMapId: 1,
-      posX: 120,
-      posY: 80,
+      zenny: 18000,
+      mapName: 'prontera',
     },
     {
       id: 3,
       name: 'DemoArcher',
       jobClass: 'ARCHER',
-      level: 22,
-      baseExp: 12000,
-      jobExp: 6500,
-      hp: 650,
-      maxHp: 800,
-      mp: 150,
-      maxMp: 200,
+      baseLevel: 22,
+      jobLevel: 9,
+      hpCurrent: 650,
+      hpMax: 800,
+      spCurrent: 150,
+      spMax: 200,
       str: 15,
       agi: 35,
       vit: 15,
-      int: 10,
+      intelligence: 10,
       dex: 40,
       luk: 20,
-      statusPoints: 10,
+      statPoints: 10,
       skillPoints: 4,
-      zeny: 32000,
-      currentMapId: 2,
-      posX: 50,
-      posY: 150,
+      zenny: 32000,
+      mapName: 'prontera',
     },
   ]
 
@@ -149,7 +139,7 @@ export default function SelectCharacterPage() {
 
   const loadPlayers = async () => {
     setIsLoading(true)
-    
+
     // Demo mode - use fake data
     if (isDemoMode) {
       setTimeout(() => {
@@ -160,18 +150,9 @@ export default function SelectCharacterPage() {
       return
     }
 
-    try {
-      const data = await api.getPlayers()
-      setPlayers(data)
-      if (data.length > 0 && !selectedPlayer) {
-        setSelectedPlayer(data[0])
-      }
-    } catch (error) {
-      toast.error('Erro ao carregar personagens')
-      console.error(error)
-    } finally {
-      setIsLoading(false)
-    }
+    // Sem endpoint de listagem no backend ainda — lista começa vazia
+    setPlayers([])
+    setIsLoading(false)
   }
 
   const handleSelectPlayer = (player: Player) => {
@@ -183,13 +164,13 @@ export default function SelectCharacterPage() {
       toast.error('Selecione um personagem')
       return
     }
-    setPlayer(selectedPlayer)
+    setPlayerId(selectedPlayer.id)
     router.push('/game')
   }
 
   const handleDeletePlayer = async () => {
     if (!selectedPlayer) return
-    
+
     setIsDeleting(true)
 
     // Demo mode
@@ -204,13 +185,9 @@ export default function SelectCharacterPage() {
     }
 
     try {
-      await api.deletePlayer(selectedPlayer.id)
-      toast.success('Personagem deletado')
+      setPlayers(prev => prev.filter(p => p.id !== selectedPlayer.id))
       setSelectedPlayer(null)
-      loadPlayers()
-    } catch (error) {
-      toast.error('Erro ao deletar personagem')
-      console.error(error)
+      toast.success('Personagem removido')
     } finally {
       setIsDeleting(false)
     }
@@ -298,7 +275,7 @@ export default function SelectCharacterPage() {
                           {player.name}
                         </p>
                         <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-                          Lv.{player.level} {player.jobClass}
+                          Lv.{player.baseLevel} {player.jobClass}
                         </p>
                       </div>
                     </div>
@@ -328,10 +305,10 @@ export default function SelectCharacterPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-[family-name:var(--font-pixel)] text-sm text-primary">
-                    LEVEL {selectedPlayer.level}
+                    LEVEL {selectedPlayer.baseLevel}
                   </p>
                   <p className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">
-                    {selectedPlayer.zeny.toLocaleString()} Zeny
+                    {selectedPlayer.zenny.toLocaleString()} Zeny
                   </p>
                 </div>
               </div>
@@ -341,56 +318,40 @@ export default function SelectCharacterPage() {
                 <StatBox label="STR" value={selectedPlayer.str} />
                 <StatBox label="AGI" value={selectedPlayer.agi} />
                 <StatBox label="VIT" value={selectedPlayer.vit} />
-                <StatBox label="INT" value={selectedPlayer.int} />
+                <StatBox label="INT" value={selectedPlayer.intelligence} />
                 <StatBox label="DEX" value={selectedPlayer.dex} />
                 <StatBox label="LUK" value={selectedPlayer.luk} />
               </div>
 
-              {/* HP/MP Bars */}
+              {/* HP/SP Bars */}
               <div className="space-y-3 mb-6">
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">HP</span>
                     <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">
-                      {selectedPlayer.hp}/{selectedPlayer.maxHp}
+                      {selectedPlayer.hpCurrent}/{selectedPlayer.hpMax}
                     </span>
                   </div>
                   <div className="hp-bar h-4 w-full">
-                    <div 
+                    <div
                       className="hp-bar-fill h-full transition-all"
-                      style={{ width: `${(selectedPlayer.hp / selectedPlayer.maxHp) * 100}%` }}
+                      style={{ width: `${(selectedPlayer.hpCurrent / selectedPlayer.hpMax) * 100}%` }}
                     />
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">MP</span>
+                    <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">SP</span>
                     <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">
-                      {selectedPlayer.mp}/{selectedPlayer.maxMp}
+                      {selectedPlayer.spCurrent}/{selectedPlayer.spMax}
                     </span>
                   </div>
                   <div className="mp-bar h-4 w-full">
-                    <div 
+                    <div
                       className="mp-bar-fill h-full transition-all"
-                      style={{ width: `${(selectedPlayer.mp / selectedPlayer.maxMp) * 100}%` }}
+                      style={{ width: `${(selectedPlayer.spCurrent / selectedPlayer.spMax) * 100}%` }}
                     />
                   </div>
-                </div>
-              </div>
-
-              {/* Experience */}
-              <div className="mb-6">
-                <div className="flex justify-between mb-1">
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">Base EXP</span>
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">
-                    {selectedPlayer.baseExp.toLocaleString()}
-                  </span>
-                </div>
-                <div className="exp-bar h-3 w-full">
-                  <div 
-                    className="exp-bar-fill h-full"
-                    style={{ width: '45%' }}
-                  />
                 </div>
               </div>
 
@@ -398,7 +359,7 @@ export default function SelectCharacterPage() {
               <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
                 <div>
                   <span className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">Status Points: </span>
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-primary">{selectedPlayer.statusPoints}</span>
+                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-primary">{selectedPlayer.statPoints}</span>
                 </div>
                 <div>
                   <span className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">Skill Points: </span>
