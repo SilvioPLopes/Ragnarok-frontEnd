@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useGame } from '@/lib/game-context'
-import { api } from '@/lib/api'
 import type { ClassChangeRequirement, JobClass } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -98,7 +97,7 @@ const CLASS_INFO: Record<JobClass, { icon: React.ReactNode; color: string; descr
 }
 
 export function ClassChangePanel() {
-  const { player, setPlayer, refreshPlayer } = useGame()
+  const { player, refreshPlayer } = useGame()
   const [requirements, setRequirements] = useState<ClassChangeRequirement[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [selectedClass, setSelectedClass] = useState<ClassChangeRequirement | null>(null)
@@ -116,8 +115,8 @@ export function ClassChangePanel() {
     
     setIsLoading(true)
     try {
-      const reqs = await api.getClassChangeRequirements(player.jobClass)
-      setRequirements(reqs)
+      setRequirements([])
+      // Endpoints de mudança de classe ainda não implementados no backend
     } catch (error) {
       console.error('Failed to load class requirements:', error)
     } finally {
@@ -131,8 +130,7 @@ export function ClassChangePanel() {
     setSelectedClass(req)
     
     try {
-      const result = await api.checkClassChangeEligibility(player.id, req.targetClass)
-      setEligibility(result)
+      setEligibility({ eligible: false, message: 'Mudança de classe em breve' })
     } catch (error) {
       setEligibility({ eligible: false, message: 'Erro ao verificar elegibilidade' })
     }
@@ -141,28 +139,9 @@ export function ClassChangePanel() {
   const handleChangeClass = async () => {
     if (!player || !selectedClass || !eligibility?.eligible) return
     
-    setIsChanging(true)
-    try {
-      const result = await api.changeClass(player.id, selectedClass.targetClass)
-      
-      if (result.success) {
-        toast.success(`Parabens! Voce agora e um ${selectedClass.targetClass}!`)
-        if (result.player) {
-          setPlayer(result.player)
-        } else {
-          refreshPlayer()
-        }
-        setSelectedClass(null)
-        setEligibility(null)
-        loadRequirements()
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao mudar de classe')
-    } finally {
-      setIsChanging(false)
-    }
+    toast.info('Mudança de classe em breve')
+    setSelectedClass(null)
+    setEligibility(null)
   }
 
   if (!player) {
@@ -199,7 +178,7 @@ export function ClassChangePanel() {
                 {player.jobClass}
               </p>
               <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground mt-1">
-                Job Level: {player.level} | Job EXP: {player.jobExp.toLocaleString()}
+                Job Level: {player.jobLevel}
               </p>
             </div>
           </div>
@@ -298,7 +277,7 @@ export function ClassChangePanel() {
                 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    {player.level >= selectedClass.requiredJobLevel ? (
+                    {player.jobLevel >= selectedClass.requiredJobLevel ? (
                       <CheckCircle className="w-4 h-4 text-green-400" />
                     ) : (
                       <XCircle className="w-4 h-4 text-destructive" />
@@ -310,7 +289,7 @@ export function ClassChangePanel() {
                   
                   {selectedClass.requiredZeny && (
                     <div className="flex items-center gap-2">
-                      {player.zeny >= selectedClass.requiredZeny ? (
+                      {player.zenny >= selectedClass.requiredZeny ? (
                         <CheckCircle className="w-4 h-4 text-green-400" />
                       ) : (
                         <XCircle className="w-4 h-4 text-destructive" />
