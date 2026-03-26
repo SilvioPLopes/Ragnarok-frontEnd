@@ -62,6 +62,17 @@ Ações possíveis: `SHOW_CAPTCHA` → modal, `DROP_SESSION` → logout, `BLOCKE
 
 ## Funcionalidades com stub (pendentes de backend)
 
-- `auth-context.tsx`: login/registro (stub localStorage)
-- `select-character/page.tsx`: listagem de personagens (sem endpoint `GET /api/players`)
+- `auth-context.tsx`: login/registro (stub localStorage — nunca chama o core)
 - `class-change-panel.tsx`: mudança de classe (sem endpoints no core)
+
+## Gaps de integração críticos
+
+1. **`apiFetch` não envia JWT**: o helper em `lib/api.ts` não inclui `Authorization: Bearer <token>`.
+   Todas as rotas protegidas do core retornam 401. Precisa ler token salvo no localStorage e incluir no header.
+
+2. **Auth real**: quando implementar, o core expõe `POST /api/accounts/login` e `POST /api/accounts/register`.
+   `LoginResponseDTO` retorna `{token: string, accountId: number}`.
+
+3. **`distributeStats`** chama `PUT /api/players/{id}/stats` — esse endpoint não existe no core ainda (404).
+
+4. **`GET /api/players` já existe** no core (`PlayerController @GetMapping` na raiz) — listagem de personagens funciona.
