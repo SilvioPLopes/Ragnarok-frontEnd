@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import type { User } from './types'
+import { authApi } from './api'
 
 interface AuthContextType {
   user: User | null
@@ -33,20 +34,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth()
   }, [checkAuth])
 
-  const login = async (username: string, _password: string) => {
-    const u: User = { id: 1, username, email: '' }
+  const login = async (username: string, password: string) => {
+    const { token, accountId } = await authApi.login(username, password)
+    const u: User = { id: accountId, username, email: '' }
+    localStorage.setItem('auth_token', token)
     localStorage.setItem('auth_user', JSON.stringify(u))
+    localStorage.removeItem('demo_mode')
+    localStorage.removeItem('demo_user')
     setUser(u)
   }
 
-  const register = async (username: string, email: string, _password: string) => {
-    const u: User = { id: 1, username, email }
-    localStorage.setItem('auth_user', JSON.stringify(u))
-    setUser(u)
+  const register = async (username: string, email: string, password: string) => {
+    await authApi.register(username, password, email)
+    // after register, log in to get token
+    await login(username, password)
   }
 
   const logout = () => {
+    localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
+    localStorage.removeItem('demo_mode')
+    localStorage.removeItem('demo_user')
     setUser(null)
   }
 

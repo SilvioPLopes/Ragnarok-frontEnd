@@ -67,11 +67,13 @@ async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       'X-Action-Timestamp': Date.now().toString(),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers ?? {}),
     },
   })
@@ -191,6 +193,22 @@ export const mapApi = {
     return apiFetch<void>(`/api/players/${playerId}/map/travel`, {
       method: 'POST',
       body: JSON.stringify({ destination }),
+    })
+  },
+}
+
+export const authApi = {
+  login(username: string, password: string): Promise<{ token: string; accountId: number }> {
+    return apiFetch('/api/accounts/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    })
+  },
+
+  register(username: string, password: string, email: string): Promise<{ accountId: number }> {
+    return apiFetch('/api/accounts/register', {
+      method: 'POST',
+      body: JSON.stringify({ username, password, email }),
     })
   },
 }

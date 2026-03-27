@@ -27,7 +27,10 @@
       "Bash(cmd /c \"powershell -NoProfile -Command \\\\\"Set-Location 'C:\\\\\\\\Users\\\\\\\\silve\\\\\\\\IdeaProjects\\\\\\\\ragnarok-simulator\\\\\\\\ragnarok-front'; npx tsc --noEmit 2>&1 | Out-String\\\\\"\" 2>&1)",
       "Bash(pnpm tsc:*)",
       "Bash(npm install:*)",
-      "Bash(timeout 20 npx next dev)"
+      "Bash(timeout 20 npx next dev)",
+      "Read(//c/Users/silve/IdeaProjects/ragnarok-simulator//**)",
+      "Read(//c/Users/silve/IdeaProjects//**)",
+      "Bash(xargs cat:*)"
     ]
   }
 }
