@@ -135,6 +135,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           monsterId: result.monsterId,
           monsterName: result.monsterName,
           monsterHpInitial: result.monsterHp,
+          monsterHpCurrent: result.monsterHp,
         })
       }
     } catch (err) {
@@ -168,10 +169,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const result = await battleApi.attack(playerId, monsterId)
       appendLog(result.message)
       await refreshPlayer()
+      if (result.message.includes('VITÓRIA')) {
+        clearEncounter()
+      } else if (result.monsterHpRemaining != null) {
+        setCurrentEncounter(prev =>
+          prev ? { ...prev, monsterHpCurrent: result.monsterHpRemaining! } : null
+        )
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao atacar')
+      clearEncounter()
     } finally {
-      clearEncounter()   // always clear — one attack per encounter
       setIsLoading(false)
     }
   }, [playerId, appendLog, refreshPlayer, clearEncounter])

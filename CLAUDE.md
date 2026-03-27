@@ -1,78 +1,119 @@
 # CLAUDE.md — ragnarok-front
 
-> Ver também `../../CLAUDE.md` para contexto do ecossistema completo.
+> See also `../../CLAUDE.md` for full ecosystem context.
 
-## O que é este projeto
+## What this project is
 
-Frontend Next.js do Ragnarok Simulator. Interface do jogador que consome a API do `ragnarok-core` (porta 8080).
+Next.js frontend for the Ragnarok Simulator. Player interface that consumes the `ragnarok-core` API (port 8080).
 
-## Portas e dependências
+## Ports and dependencies
 
-| Serviço | Porta | Necessário para |
+| Service | Port | Required for |
 |---|---|---|
-| Este projeto | 3000 | — |
-| `ragnarok-core` | 8080 | Todas as funcionalidades do jogo |
+| This project | 3000 | — |
+| `ragnarok-core` | 8080 | All game features |
 
 ## Stack
 
 - Next.js 16 (App Router, Turbopack)
 - React 19, TypeScript 5.7 (strict)
 - Tailwind CSS 4, shadcn/ui, Radix UI
-- Sonner (toasts), Lucide React (ícones)
+- Sonner (toasts), Lucide React (icons)
 - pnpm
 
-## Rodar local
+## Run locally
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:3000
-pnpm tsc --noEmit # checar tipos sem build
+pnpm dev              # http://localhost:3000
+npx tsc --noEmit      # type check without build
 ```
 
-## Arquivos críticos
+## Critical files
 
-| Arquivo | Responsabilidade |
+| File | Responsibility |
 |---|---|
-| `lib/types.ts` | Todos os tipos TypeScript do projeto. Source of truth. |
-| `lib/api.ts` | Todas as chamadas HTTP ao backend, organizadas por namespace (`playerApi`, `battleApi`, etc.). Sem lógica de negócio. |
-| `lib/game-context.tsx` | Estado global do jogo. `GameProvider` wrapa as rotas `(game)`. |
-| `lib/auth-context.tsx` | Estado de auth. `AuthProvider` fica no root layout. **Atualmente stub localStorage.** |
+| `lib/types.ts` | All TypeScript types. Source of truth. |
+| `lib/api.ts` | All HTTP calls to backend, organized by namespace. No business logic. |
+| `lib/game-context.tsx` | Global game state. `GameProvider` wraps `(game)` routes. |
+| `lib/auth-context.tsx` | Auth state. `AuthProvider` is in root layout. Calls real backend. |
 
-## Convenções importantes
+## API namespaces — `lib/api.ts`
 
-- **`jobClass`** no `PlayerResponse` é `JobClass` (union type), nunca `string`
-- **`intelligence`** é o campo do frontend/API; o payload de PUT para stats usa `"int"` como chave
-- **`zenny`** (com dois n) — não `zeny`
-- **`statPoints`** — não `statusPoints`
-- **`aegisName`** de `SkillRow` é o que vai nas URLs da API, nunca `name`
-- `hpCurrent/hpMax` e `spCurrent/spMax` — não hp/maxHp/mp/maxMp
+| Namespace | Methods |
+|---|---|
+| `playerApi` | `list`, `get`, `create`, `distributeStats`, `resurrect`, `listAvailableClasses`, `changeClass` |
+| `battleApi` | `attack` |
+| `skillApi` | `list`, `learn`, `use` (optional `monsterId` for combat targeting) |
+| `inventoryApi` | `list`, `use`, `equip` (toggle — same endpoint equips and unequips) |
+| `mapApi` | `get`, `walk`, `travel` |
+| `authApi` | `login`, `register` |
 
-## Sistema antifraude no front
+`apiFetch` automatically injects `Authorization: Bearer <token>` (reads `auth_token` from localStorage) and `X-Action-Timestamp` on every request.
 
-Qualquer resposta do backend pode incluir `fraud: FraudResponse`. O handler fica em `lib/api.ts` (`handleFraudResponse`). Configurado via `configureFraudHandler()` dentro do `GameProvider`.
+## Naming conventions
 
-Ações possíveis: `SHOW_CAPTCHA` → modal, `DROP_SESSION` → logout, `BLOCKED` → toast + logout, `CANCEL_ACTION` → toast de erro.
+- `jobClass` in `PlayerResponse` is `JobClass` (union type) — never `string`
+- `intelligence` is the frontend field; the PUT stats payload uses `"int"` as the key
+- `zenny` (double n) — not `zeny`
+- `statPoints` — not `statusPoints`
+- `aegisName` from `SkillRow` goes in API URLs — never use `name`
+- `hpCurrent/hpMax` and `spCurrent/spMax` — not `hp/maxHp/mp/maxMp`
+- `MapInfo` fields: `currentMap` and `availablePortals` (not `mapName`/`portals`)
+- `BattleResult` has `monsterHpRemaining` — updated after each attack round
+- `Encounter` has both `monsterHpInitial` (set once) and `monsterHpCurrent` (updated each round)
 
-## Auth — estado atual
+## Auth
 
-`lib/auth-context.tsx` usa **stub localStorage**. Login aceita qualquer credencial sem chamar backend. Quando o backend de auth estiver pronto:
-1. Adicionar `authApi.login()` e `authApi.register()` em `lib/api.ts`
-2. Reescrever `lib/auth-context.tsx` para chamar a API real
-3. Adicionar `User` real com campos do JWT (provavelmente `id`, `username`, `email`)
+`lib/auth-context.tsx` calls the real backend:
+- `login()` → `POST /api/accounts/login` → stores `auth_token` + `auth_user` in localStorage, clears `demo_mode`
+- `register()` → `POST /api/accounts/register` → then auto-login
+- `logout()` → clears `auth_token`, `auth_user`, `demo_mode`, `demo_user`
 
-## Funcionalidades com stub (pendentes de backend)
+`LoginResponseDTO` returns `{ token: string, accountId: number }`.
 
-- `auth-context.tsx`: login/registro (stub localStorage — nunca chama o core)
-- `class-change-panel.tsx`: mudança de classe (sem endpoints no core)
+## Demo mode
 
-## Gaps de integração críticos
+The login page has an "ENTER DEMO MODE" button that sets `localStorage.setItem('demo_mode', 'true')`. When `demo_mode === 'true'`, `select-character` shows fake players instead of calling the API. Real login clears `demo_mode` automatically.
 
-1. **`apiFetch` não envia JWT**: o helper em `lib/api.ts` não inclui `Authorization: Bearer <token>`.
-   Todas as rotas protegidas do core retornam 401. Precisa ler token salvo no localStorage e incluir no header.
+## Game tabs (`/game`)
 
-2. **Auth real**: quando implementar, o core expõe `POST /api/accounts/login` e `POST /api/accounts/register`.
-   `LoginResponseDTO` retorna `{token: string, accountId: number}`.
+| Tab value | Component | Status |
+|---|---|---|
+| `map` | `MapPanel` | Walk, encounter, multi-round combat, portals |
+| `skills` | `SkillPanel` | Learn skills, use skills (with monster targeting in combat) |
+| `inventory` | `InventoryPanel` | Use consumables, equip/unequip weapons and armor |
+| `status` | `StatusPanel` | View and distribute stat points |
+| `class` | `ClassChangePanel` | Class advancement — lists from API |
+| `log` | `BattlePanel` | Battle log history |
 
-3. **`distributeStats`** chama `PUT /api/players/{id}/stats` — esse endpoint não existe no core ainda (404).
+## Combat flow
 
-4. **`GET /api/players` já existe** no core (`PlayerController @GetMapping` na raiz) — listagem de personagens funciona.
+```
+walk() → encounterOccurred: true → currentEncounter = { monsterHpInitial, monsterHpCurrent }
+attack() → { message, monsterHpRemaining }
+  ├── message includes 'VITÓRIA' → clearEncounter()
+  ├── message includes 'FATAL'   → clearEncounter() (player died)
+  └── otherwise                  → monsterHpCurrent = monsterHpRemaining (next round)
+```
+
+## Anti-fraud system
+
+Any backend response may include `fraud: FraudResponse`. Handler is `handleFraudResponse()` in `lib/api.ts`. Configured via `configureFraudHandler()` inside `GameProvider`.
+
+| requiredAction | Behavior |
+|---|---|
+| `DROP_SESSION` | Clears session, redirects to `/` |
+| `SHOW_CAPTCHA` | Opens captcha modal |
+| `BLOCKED` | Error toast + redirect to `/` |
+| `CANCEL_ACTION` | Error toast |
+| `FLAG_FOR_REVIEW` / `ALERT_ONLY` | Silent console warn |
+
+## Known gaps (backend endpoints pending)
+
+| Feature | Missing endpoint |
+|---|---|
+| NPC Shop UI | `GET/POST /api/shop/npc/*` — endpoints exist in core, no UI in front |
+| Cash Shop UI | `GET/POST /api/shop/cash/*` — endpoints exist in core, no UI in front |
+| Market UI | `GET/POST /api/market/listings/*` — endpoints exist in core, no UI in front |
+| Trade UI | `POST/GET /api/trade/offers/*` — endpoints exist in core, no UI in front |

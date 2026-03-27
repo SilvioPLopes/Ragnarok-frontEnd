@@ -44,8 +44,8 @@ export interface InventoryItem {
 }
 
 export interface MapInfo {
-  mapName: string
-  portals: string[]       // portal destination names
+  currentMap: string
+  availablePortals: string[]
 }
 
 export interface WalkResult {
@@ -58,13 +58,15 @@ export interface WalkResult {
 
 export interface BattleResult {
   message: string
+  monsterHpRemaining?: number | null
   fraud?: FraudResponse
 }
 
 export interface Encounter {
   monsterId: number
   monsterName: string
-  monsterHpInitial: number   // display only, does not change
+  monsterHpInitial: number
+  monsterHpCurrent: number
 }
 
 export type Verdict = 'APPROVED' | 'BLOCKED' | 'CHALLENGE' | 'UNKNOWN'

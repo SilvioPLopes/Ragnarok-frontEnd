@@ -52,7 +52,7 @@ export function MapPanel() {
           </span>
         </div>
         <p className="font-[family-name:var(--font-pixel-body)] text-xl text-primary">
-          {mapInfo?.mapName ?? 'Prontera Field'}
+          {mapInfo?.currentMap ?? 'Prontera Field'}
         </p>
       </div>
 
@@ -68,7 +68,7 @@ export function MapPanel() {
                 {currentEncounter.monsterName}
               </p>
               <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-                HP: {currentEncounter.monsterHpInitial}
+                HP: {currentEncounter.monsterHpCurrent} / {currentEncounter.monsterHpInitial}
               </p>
             </div>
             <Swords className="w-8 h-8 text-destructive opacity-70" />
@@ -94,13 +94,13 @@ export function MapPanel() {
       )}
 
       {/* Portals */}
-      {mapInfo && mapInfo.portals.length > 0 && (
+      {mapInfo && mapInfo.availablePortals?.length > 0 && (
         <div className="game-panel p-4">
           <p className="font-[family-name:var(--font-pixel)] text-xs text-foreground mb-3">
             PORTAIS DISPONÍVEIS
           </p>
           <div className="space-y-2">
-            {mapInfo.portals.map((portal) => (
+            {mapInfo.availablePortals.map((portal) => (
               <Button
                 key={portal}
                 variant="outline"

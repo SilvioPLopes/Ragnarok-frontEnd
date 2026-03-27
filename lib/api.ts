@@ -103,6 +103,10 @@ async function apiFetch<T>(
 // ─── API namespaces ───────────────────────────────────────────────────────────
 
 export const playerApi = {
+  list(): Promise<PlayerResponse[]> {
+    return apiFetch<PlayerResponse[]>('/api/players')
+  },
+
   get(id: number): Promise<PlayerResponse> {
     return apiFetch<PlayerResponse>(`/api/players/${id}`)
   },
@@ -111,6 +115,21 @@ export const playerApi = {
     return apiFetch<PlayerResponse>('/api/players', {
       method: 'POST',
       body: JSON.stringify({ name, jobClass }),
+    })
+  },
+
+  resurrect(id: number): Promise<PlayerResponse> {
+    return apiFetch<PlayerResponse>(`/api/players/${id}/resurrect`, { method: 'POST' })
+  },
+
+  listAvailableClasses(id: number): Promise<string[]> {
+    return apiFetch<string[]>(`/api/players/${id}/class-change`)
+  },
+
+  changeClass(id: number, targetClass: string): Promise<PlayerResponse> {
+    return apiFetch<PlayerResponse>(`/api/players/${id}/class-change`, {
+      method: 'POST',
+      body: JSON.stringify({ targetClass }),
     })
   },
 
@@ -172,6 +191,13 @@ export const inventoryApi = {
   use(playerId: number, itemId: string): Promise<{ message: string }> {
     return apiFetch<{ message: string }>(
       `/api/players/${playerId}/inventory/${itemId}/use`,
+      { method: 'POST' }
+    )
+  },
+
+  equip(playerId: number, itemUuid: string): Promise<{ result: string }> {
+    return apiFetch<{ result: string }>(
+      `/api/players/${playerId}/inventory/${itemUuid}/equip`,
       { method: 'POST' }
     )
   },

@@ -13,7 +13,7 @@ import { Sparkles } from 'lucide-react'
 import type { SkillRow } from '@/lib/types'
 
 export function SkillPanel() {
-  const { playerId, player, skills, refreshSkills, refreshPlayer } = useGame()
+  const { playerId, player, skills, refreshSkills, refreshPlayer, currentEncounter } = useGame()
   const [loading, setLoading] = useState<string | null>(null) // aegisName being processed
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function SkillPanel() {
     if (!playerId || loading) return
     setLoading(skill.aegisName)
     try {
-      const res = await skillApi.use(playerId, skill.aegisName)
+      const res = await skillApi.use(playerId, skill.aegisName, currentEncounter?.monsterId ?? undefined)
       toast.success(res.message)
       await refreshPlayer()
     } catch (err) {
