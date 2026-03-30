@@ -6,6 +6,7 @@ import { useGame } from '@/lib/game-context'
 import { Button } from '@/components/ui/button'
 import { Footprints, MapPin, ChevronRight } from 'lucide-react'
 import { BattleHud } from '@/components/game/battle-hud'
+import { MapSprite } from '@/components/game/map-sprite'
 
 export function MapPanel() {
   const {
@@ -35,16 +36,24 @@ export function MapPanel() {
   return (
     <div className="flex-1 flex flex-col p-4 gap-4 overflow-y-auto">
       {/* Map Info */}
-      <div className="game-panel p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <MapPin className="w-4 h-4 text-primary" />
-          <span className="font-[family-name:var(--font-pixel)] text-xs text-foreground">
-            LOCALIZAÇÃO ATUAL
-          </span>
+      <div className="game-panel overflow-hidden">
+        {mapInfo?.currentMap && (
+          <MapSprite
+            mapName={mapInfo.currentMap}
+            className="w-full h-36 object-cover"
+          />
+        )}
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <MapPin className="w-4 h-4 text-primary" />
+            <span className="font-[family-name:var(--font-pixel)] text-xs text-foreground">
+              LOCALIZAÇÃO ATUAL
+            </span>
+          </div>
+          <p className="font-[family-name:var(--font-pixel-body)] text-xl text-primary">
+            {mapInfo?.currentMap ?? 'Prontera Field'}
+          </p>
         </div>
-        <p className="font-[family-name:var(--font-pixel-body)] text-xl text-primary">
-          {mapInfo?.currentMap ?? 'Prontera Field'}
-        </p>
       </div>
 
       {/* Walk Button */}
