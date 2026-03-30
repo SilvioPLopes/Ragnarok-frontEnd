@@ -1,0 +1,250 @@
+<h2>Layout da Tela de Batalha</h2>
+<p class="subtitle">Como reorganizar o MapPanel durante um encontro? Escolha o estilo que faz mais sentido.</p>
+
+<style>
+  .battle-mock {
+    background: #0f0f1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: monospace;
+    font-size: 11px;
+    color: #e0e0e0;
+  }
+  .battle-scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #2a1a0a 100%);
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    min-height: 110px;
+    position: relative;
+  }
+  .monster-side { text-align: right; flex: 1; }
+  .player-side { text-align: left; flex: 1; }
+  .sprite-box {
+    width: 52px; height: 52px;
+    background: #ffffff08;
+    border: 1px dashed #555;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #888;
+    margin: 0 auto 4px;
+  }
+  .hp-bar-wrap { font-size: 9px; color: #aaa; margin-bottom: 2px; }
+  .hp-bar { height: 5px; background: #333; border-radius: 3px; overflow: hidden; }
+  .hp-fill-green { height: 100%; background: #22c55e; border-radius: 3px; }
+  .hp-fill-red { height: 100%; background: #ef4444; border-radius: 3px; }
+  .name-tag { font-size: 10px; font-weight: bold; color: #fff; margin-bottom: 3px; }
+
+  /* Textbox */
+  .textbox {
+    background: #0d0d1a;
+    border-top: 2px solid #444;
+    padding: 8px 10px;
+    min-height: 44px;
+    font-size: 11px;
+    color: #e8e8e8;
+    line-height: 1.5;
+  }
+  .textbox-cursor { display: inline-block; width: 6px; height: 10px; background: #fff; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Menu styles */
+  .menu-grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    padding: 6px;
+    background: #0a0a16;
+    border-top: 1px solid #333;
+  }
+  .menu-btn {
+    background: #1a1a2e;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 6px 4px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #e0e0e0;
+    cursor: pointer;
+  }
+  .menu-btn.attack { border-color: #ef4444; color: #fca5a5; }
+  .menu-btn.skill  { border-color: #a78bfa; color: #c4b5fd; }
+  .menu-btn.item   { border-color: #34d399; color: #6ee7b7; }
+  .menu-btn.flee   { border-color: #94a3b8; color: #cbd5e1; }
+  .menu-btn-selected { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+  /* Option B - side by side */
+  .battle-mock-wide {
+    display: flex;
+    gap: 0;
+  }
+  .battle-scene-left {
+    flex: 1.2;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #2a1a0a 100%);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+  }
+  .battle-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0a0a16;
+    border-left: 2px solid #333;
+  }
+
+  /* Option C tabs */
+  .btab-bar {
+    display: flex;
+    background: #0a0a16;
+    border-top: 1px solid #333;
+  }
+  .btab {
+    flex: 1;
+    padding: 5px 2px;
+    font-size: 9px;
+    text-align: center;
+    color: #666;
+    border-bottom: 2px solid transparent;
+  }
+  .btab.active { color: #ef4444; border-color: #ef4444; }
+
+  .log-area {
+    background: #0a0a16;
+    border-top: 1px solid #222;
+    padding: 5px 8px;
+    min-height: 36px;
+    font-size: 9px;
+    color: #888;
+  }
+  .log-line { color: #aaa; margin-bottom: 1px; }
+  .log-line.victory { color: #fbbf24; }
+  .log-line.damage { color: #f87171; }
+  .log-line.new { color: #e0e0e0; }
+</style>
+
+<div class="cards">
+
+  <!-- OPTION A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="battle-mock">
+        <!-- Scene -->
+        <div class="battle-scene">
+          <div class="monster-side">
+            <div class="name-tag">Poring Lv.5</div>
+            <div class="hp-bar-wrap">HP 38/80</div>
+            <div class="hp-bar"><div class="hp-fill-red" style="width:47%"></div></div>
+            <div class="sprite-box">GIF</div>
+          </div>
+          <div style="width:20px"></div>
+          <div class="player-side">
+            <div class="sprite-box" style="background:#ffffff05">CHAR</div>
+            <div class="name-tag">Novice Lv.3</div>
+            <div class="hp-bar-wrap">HP 92/100</div>
+            <div class="hp-bar"><div class="hp-fill-green" style="width:92%"></div></div>
+          </div>
+        </div>
+        <!-- Textbox -->
+        <div class="textbox">
+          Poring atacou por <span style="color:#f87171">12 de dano</span>!<span class="textbox-cursor"></span>
+        </div>
+        <!-- 4-button menu -->
+        <div class="menu-grid-4">
+          <div class="menu-btn attack">⚔ ATACAR</div>
+          <div class="menu-btn skill">✦ SKILL</div>
+          <div class="menu-btn item">🎒 ITEM</div>
+          <div class="menu-btn flee">↩ FUGIR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Tela Completa de Batalha</h3>
+      <p>Quando há encontro, o MapPanel vira uma tela de batalha dedicada. Textbox inline, menu 2×2 fixo na base. Sem trocar de aba durante combate.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="battle-mock">
+        <div class="battle-mock-wide">
+          <div class="battle-scene-left">
+            <div>
+              <div class="name-tag">Poring Lv.5</div>
+              <div class="hp-bar-wrap">HP 38/80</div>
+              <div class="hp-bar"><div class="hp-fill-red" style="width:47%"></div></div>
+              <div class="sprite-box" style="width:60px;height:60px;margin:6px 0">GIF</div>
+            </div>
+            <div>
+              <div class="sprite-box" style="width:44px;height:44px;background:#ffffff05;margin:0 0 4px">CHR</div>
+              <div class="hp-bar-wrap">Novice HP 92/100</div>
+              <div class="hp-bar"><div class="hp-fill-green" style="width:92%"></div></div>
+            </div>
+          </div>
+          <div class="battle-right">
+            <div class="textbox" style="flex:1; font-size:10px">
+              <div class="log-line damage">Você atacou por 24!</div>
+              <div class="log-line">Poring atacou por 12.</div>
+              <div class="log-line new">Poring atacou por 9.<span class="textbox-cursor"></span></div>
+            </div>
+            <div class="menu-grid-4">
+              <div class="menu-btn attack">⚔ ATACAR</div>
+              <div class="menu-btn skill">✦ SKILL</div>
+              <div class="menu-btn item">🎒 ITEM</div>
+              <div class="menu-btn flee">↩ FUGIR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Split: Cena + Log + Menu</h3>
+      <p>Lado esquerdo: sprites e barras de HP. Lado direito: log de batalha por turno + menu 2×2. Mais informação visível ao mesmo tempo.</p>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="battle-mock">
+        <div class="battle-scene" style="min-height:80px; padding:8px">
+          <div class="monster-side">
+            <div class="name-tag">Poring Lv.5</div>
+            <div class="hp-bar-wrap">HP 38/80</div>
+            <div class="hp-bar"><div class="hp-fill-red" style="width:47%"></div></div>
+            <div class="sprite-box" style="width:44px;height:44px">GIF</div>
+          </div>
+          <div class="player-side">
+            <div class="sprite-box" style="width:36px;height:36px;background:#ffffff05">CHR</div>
+            <div class="hp-bar-wrap">HP 92/100</div>
+            <div class="hp-bar"><div class="hp-fill-green" style="width:92%"></div></div>
+          </div>
+        </div>
+        <div class="log-area">
+          <div class="log-line damage">Você atacou por 24 de dano!</div>
+          <div class="log-line new">Poring contra-atacou por 9.<span class="textbox-cursor"></span></div>
+        </div>
+        <div class="btab-bar">
+          <div class="btab active">⚔ ATACAR</div>
+          <div class="btab">✦ SKILL</div>
+          <div class="btab">🎒 ITEM</div>
+          <div class="btab">↩ FUGIR</div>
+        </div>
+        <div style="padding:6px;background:#0a0a16;text-align:center;font-size:10px;color:#ef4444">
+          [ ATACAR ]
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Compacto: Log Inline + Abas de Ação</h3>
+      <p>Layout mais estreito para mobile. Log de turno colado abaixo da cena. As 4 ações viram abas — o conteúdo muda conforme a seleção (ex: lista de skills ao clicar em SKILL).</p>
+    </div>
+  </div>
+
+</div>

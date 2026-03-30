@@ -1,0 +1,207 @@
+<h2>Layout A — Posicionamento Pokémon</h2>
+<p class="subtitle">HP do monstro: topo-esquerda · Sprite do monstro: topo-direita · Char: baixo-esquerda · HP do player: baixo-direita</p>
+
+<style>
+  .bm {
+    background: #0f0f1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: monospace;
+    color: #e0e0e0;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%);
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+  }
+
+  /* Monster HP — top left */
+  .monster-hp {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    background: #0d0d20cc;
+    border: 1px solid #ef444466;
+    border-radius: 5px;
+    padding: 5px 9px;
+    min-width: 110px;
+  }
+  .monster-hp .name {
+    font-size: 10px;
+    font-weight: bold;
+    color: #fca5a5;
+    margin-bottom: 3px;
+  }
+  .monster-hp .level {
+    font-size: 8px;
+    color: #888;
+    float: right;
+  }
+  .hp-row { display: flex; align-items: center; gap: 4px; }
+  .hp-lbl { font-size: 8px; color: #aaa; }
+  .hp-bar { flex: 1; height: 5px; background: #222; border-radius: 3px; overflow: hidden; }
+  .hp-fill-red    { height: 100%; background: #ef4444; border-radius: 3px; }
+  .hp-fill-green  { height: 100%; background: #22c55e; border-radius: 3px; }
+  .hp-fill-yellow { height: 100%; background: #eab308; border-radius: 3px; }
+
+  /* Monster sprite — top right */
+  .monster-sprite {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    width: 72px;
+    height: 72px;
+    background: #ff000008;
+    border: 1px dashed #ef444466;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #ef4444;
+  }
+
+  /* Ground lines */
+  .ground-monster {
+    position: absolute;
+    top: 82px;
+    right: 10px;
+    width: 80px;
+    border-top: 3px solid #3a3a2a;
+    border-radius: 50%;
+  }
+
+  /* Player sprite — bottom left */
+  .player-sprite {
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    width: 58px;
+    height: 58px;
+    background: #0000ff08;
+    border: 1px dashed #3b82f666;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #3b82f6;
+  }
+
+  .ground-player {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    width: 76px;
+    border-top: 3px solid #5a4a3a;
+    border-radius: 50%;
+  }
+
+  /* Player HP — bottom right */
+  .player-hp {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    background: #0d0d20cc;
+    border: 1px solid #3b82f666;
+    border-radius: 5px;
+    padding: 5px 9px;
+    min-width: 110px;
+  }
+  .player-hp .name {
+    font-size: 10px;
+    font-weight: bold;
+    color: #93c5fd;
+    margin-bottom: 3px;
+  }
+  .player-hp .level { font-size: 8px; color: #888; float: right; }
+
+  /* Textbox */
+  .textbox {
+    background: #0a0a18;
+    border-top: 2px solid #2a2a40;
+    padding: 9px 14px;
+    min-height: 48px;
+    font-size: 11px;
+    color: #e8e8e8;
+    line-height: 1.6;
+  }
+  .cursor {
+    display: inline-block; width: 6px; height: 11px;
+    background: #fff; vertical-align: middle; margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Menu */
+  .menu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    padding: 6px;
+    background: #06060f;
+    border-top: 1px solid #1e1e3a;
+  }
+  .mbtn {
+    border-radius: 4px;
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .atk { background: #12122a; border: 1px solid #ef4444; color: #fca5a5; }
+  .skl { background: #12122a; border: 1px solid #a78bfa; color: #c4b5fd; }
+  .itm { background: #12122a; border: 1px solid #34d399; color: #86efac; }
+  .fly { background: #12122a; border: 1px solid #64748b; color: #94a3b8; }
+</style>
+
+<div style="max-width:420px;margin:0 auto">
+  <div class="bm">
+    <div class="scene">
+
+      <!-- Monster HP: TOP LEFT -->
+      <div class="monster-hp">
+        <div class="name">Poring <span class="level">Lv 5</span></div>
+        <div class="hp-row">
+          <span class="hp-lbl">HP</span>
+          <div class="hp-bar"><div class="hp-fill-red" style="width:47%"></div></div>
+        </div>
+      </div>
+
+      <!-- Monster sprite: TOP RIGHT -->
+      <div class="ground-monster"></div>
+      <div class="monster-sprite">GIF</div>
+
+      <!-- Player sprite: BOTTOM LEFT -->
+      <div class="ground-player"></div>
+      <div class="player-sprite">CHAR</div>
+
+      <!-- Player HP: BOTTOM RIGHT -->
+      <div class="player-hp">
+        <div class="name">Novice <span class="level">Lv 3</span></div>
+        <div class="hp-row">
+          <span class="hp-lbl">HP</span>
+          <div class="hp-bar"><div class="hp-fill-green" style="width:92%"></div></div>
+        </div>
+        <div class="hp-row" style="margin-top:2px">
+          <span class="hp-lbl">SP</span>
+          <div class="hp-bar"><div class="hp-fill-yellow" style="width:60%"></div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Textbox -->
+    <div class="textbox">
+      Poring atacou! Você recebeu <span style="color:#f87171">12 de dano</span>.<span class="cursor"></span>
+    </div>
+
+    <!-- Menu 2x2 -->
+    <div class="menu">
+      <div class="mbtn atk">⚔ ATACAR</div>
+      <div class="mbtn skl">✦ SKILL</div>
+      <div class="mbtn itm">🎒 ITEM</div>
+      <div class="mbtn fly">↩ FUGIR</div>
+    </div>
+  </div>
+</div>

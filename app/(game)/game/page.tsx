@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 
 export default function GamePage() {
   const router = useRouter()
-  const { player, playerId, refreshPlayer, refreshInventory, refreshSkills } = useGame()
+  const { player, playerId, refreshPlayer, refreshInventory, refreshSkills, refreshMapInfo } = useGame()
   const [isResurrecting, setIsResurrecting] = useState(false)
 
   useEffect(() => {
@@ -59,6 +59,7 @@ export default function GamePage() {
             try {
               await playerApi.resurrect(playerId)
               await refreshPlayer()
+              await refreshMapInfo()
             } catch (err) {
               toast.error(err instanceof Error ? err.message : 'Erro ao ressuscitar')
             } finally {

@@ -9,12 +9,34 @@ interface MapSpriteProps {
   className?: string
 }
 
-export function MapSprite({ mapName, className }: MapSpriteProps) {
-  const [error, setError] = useState(false)
+// Known CDN candidates — tried in order until one loads
+const CDN_PATTERNS = [
+  (name: string) => `https://file5s.ratemyserver.net/maps/${name}.png`,
+  (name: string) => `https://file5s.ratemyserver.net/maps/${name}.jpg`,
+  (name: string) => `https://static.divine-pride.net/images/maps/map/${name}.png`,
+]
 
-  if (error) {
+export function MapSprite({ mapName, className }: MapSpriteProps) {
+  const [attempt, setAttempt] = useState(0)
+
+  const src = CDN_PATTERNS[attempt]?.(mapName)
+
+  console.log('[MapSprite]', { mapName, attempt, src, totalPatterns: CDN_PATTERNS.length })
+
+  const handleError = () => {
+    console.warn(`[MapSprite] failed attempt ${attempt} — url: ${src}`)
+    if (attempt + 1 < CDN_PATTERNS.length) {
+      setAttempt(a => a + 1)
+    } else {
+      console.warn(`[MapSprite] all CDN patterns exhausted for mapName="${mapName}"`)
+      setAttempt(CDN_PATTERNS.length) // sentinel: all failed
+    }
+  }
+
+  if (!src) {
+    console.warn('[MapSprite] no more CDN patterns — showing fallback icon')
     return (
-      <div className={`flex items-center justify-center bg-muted/20 rounded ${className ?? 'w-full h-32'}`}>
+      <div className={`flex items-center justify-center bg-muted/20 rounded ${className ?? 'w-full py-10'}`}>
         <Map className="w-8 h-8 text-muted-foreground/40" />
       </div>
     )
@@ -23,10 +45,11 @@ export function MapSprite({ mapName, className }: MapSpriteProps) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={`https://file5s.ratemyserver.net/maps/${mapName}.png`}
+      src={src}
       alt={mapName}
-      onError={() => setError(true)}
-      className={className ?? 'w-full h-32 object-cover rounded'}
+      onLoad={() => console.log(`[MapSprite] ✓ loaded: ${src}`)}
+      onError={handleError}
+      className={className ?? 'w-full object-contain'}
     />
   )
 }

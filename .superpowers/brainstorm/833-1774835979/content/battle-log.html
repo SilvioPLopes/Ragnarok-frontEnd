@@ -1,0 +1,176 @@
+<h2>Log de Batalha — Como exibir o histórico?</h2>
+<p class="subtitle">Mensagens aparecem na textbox da tela de batalha. Como lidar com turnos anteriores?</p>
+
+<style>
+  .bm {
+    background: #0f0f1a; border: 2px solid #333;
+    border-radius: 8px; overflow: hidden;
+    font-family: monospace; color: #e0e0e0;
+    max-width: 320px; margin: 0 auto;
+  }
+  .scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%);
+    position: relative; height: 110px;
+  }
+  .monster-hp { position:absolute;top:7px;left:9px;background:#0d0d20cc;border:1px solid #ef444466;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .mname { font-size:9px;font-weight:bold;color:#fca5a5;margin-bottom:2px; }
+  .hp-row { display:flex;align-items:center;gap:3px; }
+  .hp-lbl { font-size:7px;color:#aaa; }
+  .hp-bar { flex:1;height:4px;background:#222;border-radius:2px;overflow:hidden; }
+  .hp-r { height:100%;background:#ef4444; }
+  .hp-g { height:100%;background:#22c55e; }
+  .hp-y { height:100%;background:#eab308; }
+  .monster-sprite { position:absolute;top:5px;right:9px;width:52px;height:52px;background:#ff000008;border:1px dashed #ef444466;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ef4444; }
+  .player-sprite { position:absolute;bottom:5px;left:12px;width:42px;height:42px;background:#0000ff08;border:1px dashed #3b82f666;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#3b82f6; }
+  .player-hp { position:absolute;bottom:5px;right:9px;background:#0d0d20cc;border:1px solid #3b82f666;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .pname { font-size:9px;font-weight:bold;color:#93c5fd;margin-bottom:2px; }
+  .cursor { display:inline-block;width:5px;height:10px;background:#fff;vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite; }
+  @keyframes blink { 50%{opacity:0} }
+  .menu-2x2 { display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px;background:#06060f;border-top:1px solid #1e1e3a; }
+  .mbtn { border-radius:4px;padding:7px 4px;text-align:center;font-size:9px;font-weight:bold; }
+  .atk { background:#12122a;border:1px solid #ef4444;color:#fca5a5; }
+  .skl { background:#12122a;border:1px solid #a78bfa;color:#c4b5fd; }
+  .itm { background:#12122a;border:1px solid #34d399;color:#86efac; }
+  .fly { background:#12122a;border:1px solid #64748b;color:#94a3b8; }
+
+  /* Textbox variants */
+  .textbox-single {
+    background:#0a0a18; border-top:2px solid #2a2a40;
+    padding:8px 11px; font-size:10px; color:#e8e8e8; line-height:1.6;
+    min-height:46px;
+  }
+  .textbox-scroll {
+    background:#0a0a18; border-top:2px solid #2a2a40;
+    padding:6px 11px; font-size:10px; line-height:1.6;
+    max-height:72px; overflow-y:auto;
+    scrollbar-width:thin; scrollbar-color:#1e1e3a #0a0a18;
+  }
+  .textbox-scroll::-webkit-scrollbar { width:3px; }
+  .textbox-scroll::-webkit-scrollbar-track { background:#0a0a18; }
+  .textbox-scroll::-webkit-scrollbar-thumb { background:#1e1e3a; border-radius:3px; }
+
+  .textbox-collapsible {
+    background:#0a0a18; border-top:2px solid #2a2a40;
+  }
+  .textbox-current { padding:8px 11px; font-size:10px; color:#e8e8e8; line-height:1.6; min-height:40px; }
+  .history-toggle {
+    display:flex; align-items:center; justify-content:flex-end;
+    padding:3px 11px; font-size:8px; color:#444; border-top:1px solid #111;
+    cursor:pointer; gap:4px;
+  }
+  .history-panel {
+    border-top:1px solid #1a1a2a; padding:5px 11px;
+    max-height:65px; overflow-y:auto;
+    scrollbar-width:thin; scrollbar-color:#1e1e3a #0a0a18;
+  }
+  .history-panel::-webkit-scrollbar { width:3px; }
+  .history-panel::-webkit-scrollbar-track { background:#0a0a18; }
+  .history-panel::-webkit-scrollbar-thumb { background:#1e1e3a; border-radius:3px; }
+
+  /* Log message types */
+  .msg-player { color:#93c5fd; font-size:9px; margin-bottom:2px; }
+  .msg-monster { color:#fca5a5; font-size:9px; margin-bottom:2px; }
+  .msg-system  { color:#888; font-size:9px; margin-bottom:2px; }
+  .msg-current { color:#e8e8e8; font-size:10px; }
+  .msg-victory { color:#fbbf24; font-size:10px; font-weight:bold; }
+  .msg-drop    { color:#34d399; font-size:9px; }
+  .msg-level   { color:#a78bfa; font-size:9px; font-weight:bold; }
+  .turn-sep    { color:#333; font-size:8px; margin:2px 0; border-top:1px solid #1a1a2a; padding-top:2px; }
+</style>
+
+<div class="cards">
+
+  <!-- A: só turno atual -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:20%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:60%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:40%"></div></div></div></div>
+        </div>
+        <div class="textbox-single">
+          Você atacou o Poring por <span style="color:#93c5fd">31 de dano</span>!<span class="cursor"></span>
+        </div>
+        <div class="menu-2x2">
+          <div class="mbtn atk">⚔ ATACAR</div><div class="mbtn skl">✦ SKILL</div>
+          <div class="mbtn itm">🎒 ITEM</div><div class="mbtn fly">↩ FUGIR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Só o turno atual</h3>
+      <p>Textbox mostra apenas a última mensagem. Limpo e focado. Histórico completo ainda existe na aba LOG para consulta.</p>
+    </div>
+  </div>
+
+  <!-- B: acumula mensagens com scroll -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:20%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:60%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:40%"></div></div></div></div>
+        </div>
+        <div class="textbox-scroll">
+          <div class="turn-sep">— turno 1 —</div>
+          <div class="msg-player">Você atacou por 24 de dano.</div>
+          <div class="msg-monster">Poring contra-atacou por 9.</div>
+          <div class="turn-sep">— turno 2 —</div>
+          <div class="msg-player">Você atacou por 19 de dano.</div>
+          <div class="msg-monster">Poring contra-atacou por 12.</div>
+          <div class="turn-sep">— turno 3 —</div>
+          <div class="msg-current">Você atacou por 31 de dano.<span class="cursor"></span></div>
+        </div>
+        <div class="menu-2x2">
+          <div class="mbtn atk">⚔ ATACAR</div><div class="mbtn skl">✦ SKILL</div>
+          <div class="mbtn itm">🎒 ITEM</div><div class="mbtn fly">↩ FUGIR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Acumula com scroll por turno</h3>
+      <p>Textbox cresce e faz scroll. Separadores de turno entre cada rodada. Azul = jogador, vermelho = monstro. Histórico visível sem trocar de aba.</p>
+    </div>
+  </div>
+
+  <!-- C: atual + histórico expansível -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:20%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:60%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:40%"></div></div></div></div>
+        </div>
+        <div class="textbox-collapsible">
+          <div class="textbox-current">
+            Você atacou o Poring por <span style="color:#93c5fd">31 de dano</span>!<span class="cursor"></span>
+          </div>
+          <div class="history-toggle">↑ 3 turnos anteriores</div>
+          <div class="history-panel">
+            <div class="turn-sep">— turno 1 —</div>
+            <div class="msg-player">Você atacou por 24 de dano.</div>
+            <div class="msg-monster">Poring contra-atacou por 9.</div>
+            <div class="turn-sep">— turno 2 —</div>
+            <div class="msg-player">Você atacou por 19 de dano.</div>
+            <div class="msg-monster">Poring contra-atacou por 12.</div>
+          </div>
+        </div>
+        <div class="menu-2x2">
+          <div class="mbtn atk">⚔ ATACAR</div><div class="mbtn skl">✦ SKILL</div>
+          <div class="mbtn itm">🎒 ITEM</div><div class="mbtn fly">↩ FUGIR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Atual + histórico expansível</h3>
+      <p>Textbox mostra só o turno atual. Botão "↑ N turnos anteriores" expande o histórico inline. Compacto por padrão, rico quando necessário.</p>
+    </div>
+  </div>
+
+</div>

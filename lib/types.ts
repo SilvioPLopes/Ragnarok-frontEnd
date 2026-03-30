@@ -33,6 +33,7 @@ export interface SkillRow {
   currentLevel: number
   canLearn: boolean
   blockedReason?: string
+  targetable?: boolean    // true = offensive skill that requires a monsterId in combat
 }
 
 export interface InventoryItem {

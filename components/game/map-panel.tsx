@@ -40,7 +40,7 @@ export function MapPanel() {
         {mapInfo?.currentMap && (
           <MapSprite
             mapName={mapInfo.currentMap}
-            className="w-full h-36 object-cover"
+            className="w-full object-contain bg-black"
           />
         )}
         <div className="p-4">

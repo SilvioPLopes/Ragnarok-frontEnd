@@ -1,0 +1,177 @@
+<h2>Tela de Vitória — Derrotar o Monstro</h2>
+<p class="subtitle">Como celebrar a derrota do monstro e mostrar EXP, drops e level up?</p>
+
+<style>
+  .bm {
+    background: #0f0f1a; border: 2px solid #333;
+    border-radius: 8px; overflow: hidden;
+    font-family: monospace; color: #e0e0e0;
+    max-width: 320px; margin: 0 auto;
+  }
+  .scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%);
+    position: relative; height: 110px;
+  }
+  .monster-hp { position:absolute;top:7px;left:9px;background:#0d0d20cc;border:1px solid #ef444466;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .mname { font-size:9px;font-weight:bold;color:#fca5a5;margin-bottom:2px; }
+  .hp-row { display:flex;align-items:center;gap:3px; }
+  .hp-lbl { font-size:7px;color:#aaa; }
+  .hp-bar { flex:1;height:4px;background:#222;border-radius:2px;overflow:hidden; }
+  .hp-zero { height:100%;background:#333; }
+  .hp-g { height:100%;background:#22c55e; }
+  .hp-y { height:100%;background:#eab308; }
+  .monster-sprite { position:absolute;top:5px;right:9px;width:52px;height:52px;background:#ff000008;border:1px dashed #55555566;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:.3; }
+  .player-sprite { position:absolute;bottom:5px;left:12px;width:42px;height:42px;background:#0000ff08;border:1px dashed #3b82f666;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#3b82f6; }
+  .player-hp { position:absolute;bottom:5px;right:9px;background:#0d0d20cc;border:1px solid #3b82f666;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .pname { font-size:9px;font-weight:bold;color:#93c5fd;margin-bottom:2px; }
+  .cursor { display:inline-block;width:5px;height:10px;background:#fbbf24;vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite; }
+  @keyframes blink { 50%{opacity:0} }
+
+  /* ── OPÇÃO A: textbox com linhas coloridas ── */
+  .textbox-victory-a {
+    background: #0a0a18; border-top: 2px solid #fbbf2466;
+    padding: 8px 11px; font-size: 10px; line-height: 1.8;
+  }
+  .v-title  { color: #fbbf24; font-weight: bold; font-size: 11px; }
+  .v-exp    { color: #a78bfa; }
+  .v-drop   { color: #34d399; }
+  .v-levelup { color: #ffd700; font-weight: bold; background: #1a1400; padding: 1px 5px; border-radius: 3px; border: 1px solid #fbbf2455; }
+  .v-walk-btn { display:block;background:#12122a;border:1px solid #fbbf2444;color:#fbbf24;border-radius:4px;padding:6px;text-align:center;font-size:9px;font-weight:bold;margin-top:6px; }
+
+  /* ── OPÇÃO B: card de recompensas ── */
+  .victory-card-b {
+    background: #06080a; border-top: 2px solid #fbbf24;
+  }
+  .vc-header {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 8px 11px 5px; border-bottom: 1px solid #1a1500;
+  }
+  .vc-title { font-size: 12px; font-weight: bold; color: #fbbf24; letter-spacing: 2px; }
+  .vc-body { padding: 6px 11px; }
+  .vc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0; border-bottom: 1px solid #111; font-size: 10px;
+  }
+  .vc-row:last-child { border-bottom: none; }
+  .vc-label { color: #666; font-size: 9px; }
+  .vc-val-exp    { color: #a78bfa; font-weight: bold; }
+  .vc-val-drop   { color: #34d399; }
+  .vc-val-level  { color: #ffd700; font-weight: bold; }
+  .vc-levelup-banner {
+    background: #1a1200; border: 1px solid #fbbf2455;
+    border-radius: 4px; padding: 5px 8px; margin-top: 4px;
+    text-align: center; font-size: 10px; color: #ffd700; font-weight: bold;
+  }
+  .vc-continue { display:block;background:#12122a;border:1px solid #fbbf2444;color:#fbbf24;border-radius:4px;padding:6px;text-align:center;font-size:9px;font-weight:bold;margin:6px 11px 8px; }
+
+  /* ── OPÇÃO C: overlay de vitória ── */
+  .victory-overlay-c {
+    background: linear-gradient(180deg, #0a0800 0%, #050508 100%);
+    padding: 16px 14px; text-align: center;
+  }
+  .vc-star { font-size: 28px; margin-bottom: 4px; }
+  .vc-big-title { font-size: 15px; font-weight: bold; color: #fbbf24; letter-spacing: 3px; margin-bottom: 2px; }
+  .vc-monster-name { font-size: 9px; color: #555; margin-bottom: 10px; }
+  .vc-rewards {
+    background: #0d0d1a; border: 1px solid #1e1e30;
+    border-radius: 6px; padding: 8px 10px; margin-bottom: 10px; text-align: left;
+  }
+  .vc-reward-row { display:flex;justify-content:space-between;font-size:10px;padding:3px 0;border-bottom:1px solid #111; }
+  .vc-reward-row:last-child { border-bottom:none; }
+  .vc-r-label { color:#555; }
+  .vc-r-exp   { color:#a78bfa;font-weight:bold; }
+  .vc-r-drop  { color:#34d399; }
+  .vc-levelup-badge {
+    background: #1a1200; border: 1px solid #fbbf24;
+    border-radius: 20px; padding: 4px 14px; display:inline-block;
+    font-size: 11px; color: #ffd700; font-weight: bold; margin-bottom: 8px;
+  }
+  .vc-btn-c { background:#fbbf2415;border:1px solid #fbbf24;color:#fbbf24;border-radius:4px;padding:7px 28px;font-size:10px;font-weight:bold; }
+</style>
+
+<div class="cards">
+
+  <!-- A: textbox colorida -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-zero" style="width:100%"></div></div></div></div>
+          <div class="monster-sprite">💀</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:78%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:40%"></div></div></div></div>
+        </div>
+        <div class="textbox-victory-a">
+          <div class="v-title">✦ VITÓRIA! Poring derrotado.<span class="cursor"></span></div>
+          <div class="v-exp">+ 120 EXP base · + 45 Job EXP</div>
+          <div class="v-drop">Drop: Red Potion x1 · Sticky Mucus x2</div>
+          <div class="v-levelup">⬆ LEVEL UP! Base Lv 3 → 4</div>
+          <div class="v-walk-btn">▶ CONTINUAR ANDANDO</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Textbox colorida inline</h3>
+      <p>Tudo na textbox: vitória em dourado, EXP em roxo, drops em verde, level up com badge. Sem sair da tela. Botão "CONTINUAR" no rodapé.</p>
+    </div>
+  </div>
+
+  <!-- B: card de recompensas -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-zero" style="width:100%"></div></div></div></div>
+          <div class="monster-sprite">💀</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:78%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:40%"></div></div></div></div>
+        </div>
+        <div class="victory-card-b">
+          <div class="vc-header">
+            <span>⚔</span>
+            <span class="vc-title">VITÓRIA</span>
+            <span>⚔</span>
+          </div>
+          <div class="vc-body">
+            <div class="vc-row"><span class="vc-label">EXP base</span><span class="vc-val-exp">+ 120</span></div>
+            <div class="vc-row"><span class="vc-label">Job EXP</span><span class="vc-val-exp">+ 45</span></div>
+            <div class="vc-row"><span class="vc-label">Drop</span><span class="vc-val-drop">Red Potion x1</span></div>
+            <div class="vc-row"><span class="vc-label">Drop</span><span class="vc-val-drop">Sticky Mucus x2</span></div>
+            <div class="vc-levelup-banner">⬆ LEVEL UP! Lv 3 → 4</div>
+          </div>
+          <span class="vc-continue">▶ CONTINUAR</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Card de recompensas estruturado</h3>
+      <p>Card abaixo da cena com linhas organizadas: EXP, drops e level up separados por tipo. Visual mais parecido com RPG de turno clássico.</p>
+    </div>
+  </div>
+
+  <!-- C: overlay de vitória -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="victory-overlay-c">
+          <div class="vc-star">🏆</div>
+          <div class="vc-big-title">VITÓRIA!</div>
+          <div class="vc-monster-name">Poring Lv5 derrotado</div>
+          <div class="vc-levelup-badge">⬆ LEVEL UP! Lv 3 → 4</div>
+          <div class="vc-rewards">
+            <div class="vc-reward-row"><span class="vc-r-label">EXP base</span><span class="vc-r-exp">+ 120</span></div>
+            <div class="vc-reward-row"><span class="vc-r-label">Job EXP</span><span class="vc-r-exp">+ 45</span></div>
+            <div class="vc-reward-row"><span class="vc-r-label">Red Potion</span><span class="vc-r-drop">x1</span></div>
+            <div class="vc-reward-row"><span class="vc-r-label">Sticky Mucus</span><span class="vc-r-drop">x2</span></div>
+          </div>
+          <div class="vc-btn-c">▶ CONTINUAR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Overlay de vitória dedicada</h3>
+      <p>Tela escura cobre tudo. Troféu, título grande, badge de level up, tabela de recompensas. Mais impactante — pausa o jogo para celebrar.</p>
+    </div>
+  </div>
+
+</div>

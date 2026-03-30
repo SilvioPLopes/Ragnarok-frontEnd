@@ -18,7 +18,7 @@ export function BattleHud() {
   const {
     playerId, player, currentEncounter, clearEncounter,
     attackMonster, flee, skills, inventory,
-    refreshInventory, refreshPlayer,
+    refreshInventory, refreshPlayer, refreshMapInfo,
     battleLog, isLoading,
   } = useGame()
 
@@ -47,6 +47,7 @@ export function BattleHud() {
         setTimeout(async () => {
           clearEncounter()
           await refreshPlayer()
+          await refreshMapInfo()
         }, 1500)
       }
     } finally {
@@ -58,7 +59,15 @@ export function BattleHud() {
     if (!playerId || actionLoading) return
     setActionLoading(true)
     try {
-      const res = await skillApi.use(playerId, skill.aegisName, currentEncounter?.monsterId)
+      // Only pass monsterId for offensive/targetable skills; self-buffs must omit it
+      const targetId = skill.targetable ? currentEncounter?.monsterId : undefined
+      console.log('[handleUseSkill]', {
+        aegisName: skill.aegisName,
+        targetable: skill.targetable,
+        currentEncounterId: currentEncounter?.monsterId,
+        targetId,
+      })
+      const res = await skillApi.use(playerId, skill.aegisName, targetId)
       toast.success(res.message)
       await refreshPlayer()
     } catch (err) {
@@ -88,7 +97,8 @@ export function BattleHud() {
     clearEncounter()
     setPhase('fighting')
     setVictoryMessage('')
-  }, [clearEncounter])
+    refreshMapInfo()
+  }, [clearEncounter, refreshMapInfo])
 
   if (!currentEncounter) return null
 

@@ -127,19 +127,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const walkMap = useCallback(async () => {
     if (!playerId) return
+    console.log('[walkMap] start', { playerId })
     setIsLoading(true)
     try {
       const result = await mapApi.walk(playerId)
+      console.log('[walkMap] result', result)
       appendLog(result.message)
       if (result.encounterOccurred && result.monsterId && result.monsterName && result.monsterHp) {
+        console.log('[walkMap] encounter!', { monsterId: result.monsterId, monsterName: result.monsterName, hp: result.monsterHp })
         setCurrentEncounter({
           monsterId: result.monsterId,
           monsterName: result.monsterName,
           monsterHpInitial: result.monsterHp,
           monsterHpCurrent: result.monsterHp,
         })
+      } else {
+        console.log('[walkMap] no encounter', { encounterOccurred: result.encounterOccurred, monsterId: result.monsterId })
       }
     } catch (err) {
+      console.error('[walkMap] error', err)
       toast.error(err instanceof Error ? err.message : 'Erro ao andar')
     } finally {
       setIsLoading(false)
@@ -148,15 +154,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const travelTo = useCallback(async (destination: string) => {
     if (!playerId) return
+    console.log('[travelTo] start', { playerId, destination })
     setIsLoading(true)
     try {
       await mapApi.travel(playerId, destination)
+      console.log('[travelTo] travel OK, refreshing map...')
       clearBattleLog()
       clearEncounter()
       const info = await mapApi.get(playerId)
+      console.log('[travelTo] new mapInfo', info)
       setMapInfo(info)
       await refreshPlayer()
     } catch (err) {
+      console.error('[travelTo] error', { destination, err })
       toast.error(err instanceof Error ? err.message : 'Erro ao viajar')
     } finally {
       setIsLoading(false)
@@ -165,9 +175,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const attackMonster = useCallback(async (monsterId: number): Promise<BattleResult | null> => {
     if (!playerId) return null
+    console.log('[attackMonster] start', { playerId, monsterId })
     setIsLoading(true)
     try {
       const result = await battleApi.attack(playerId, monsterId)
+      console.log('[attackMonster] result', result)
       appendLog(result.message)
 
       const isFatal = result.message.includes('FATAL')

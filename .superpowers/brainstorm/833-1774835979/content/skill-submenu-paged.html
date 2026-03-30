@@ -1,0 +1,182 @@
+<h2>Menu de SKILL — Grade 2×2 com Paginação</h2>
+<p class="subtitle">4 skills por página · ANTERIOR / PRÓXIMO para navegar · VOLTAR para cancelar</p>
+
+<style>
+  .bm {
+    background: #0f0f1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: monospace;
+    color: #e0e0e0;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+  .scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%);
+    position: relative;
+    height: 120px;
+  }
+  .monster-hp {
+    position: absolute; top: 8px; left: 10px;
+    background: #0d0d20cc; border: 1px solid #ef444466;
+    border-radius: 5px; padding: 4px 8px; min-width: 95px;
+  }
+  .mname { font-size: 9px; font-weight: bold; color: #fca5a5; margin-bottom: 2px; }
+  .hp-row { display: flex; align-items: center; gap: 3px; }
+  .hp-lbl { font-size: 7px; color: #aaa; }
+  .hp-bar { flex: 1; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+  .hp-r { height: 100%; background: #ef4444; }
+  .hp-g { height: 100%; background: #22c55e; }
+  .hp-y { height: 100%; background: #eab308; }
+  .monster-sprite {
+    position: absolute; top: 6px; right: 10px;
+    width: 56px; height: 56px;
+    background: #ff000008; border: 1px dashed #ef444466;
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #ef4444;
+  }
+  .player-sprite {
+    position: absolute; bottom: 6px; left: 14px;
+    width: 46px; height: 46px;
+    background: #0000ff08; border: 1px dashed #3b82f666;
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #3b82f6;
+  }
+  .player-hp {
+    position: absolute; bottom: 6px; right: 10px;
+    background: #0d0d20cc; border: 1px solid #3b82f666;
+    border-radius: 5px; padding: 4px 8px; min-width: 95px;
+  }
+  .pname { font-size: 9px; font-weight: bold; color: #93c5fd; margin-bottom: 2px; }
+
+  .textbox {
+    background: #0a0a18; border-top: 2px solid #2a2a40;
+    padding: 7px 12px; font-size: 10px; color: #e8e8e8; line-height: 1.5;
+  }
+  .cursor {
+    display: inline-block; width: 5px; height: 10px;
+    background: #fff; vertical-align: middle; margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Skill grid */
+  .skill-area { background: #06060f; padding: 5px; }
+  .skill-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 3px; margin-bottom: 3px;
+  }
+  .skill-btn {
+    background: #1a0d30; border: 1px solid #a78bfa55;
+    border-radius: 4px; padding: 7px 5px;
+    font-size: 9px; color: #c4b5fd; text-align: center; line-height: 1.4;
+  }
+  .skill-btn .sp { font-size: 7px; color: #888; display: block; margin-top: 2px; }
+  .skill-btn.disabled { opacity: .3; border-color: #2a2a2a; color: #555; }
+
+  /* Page indicator */
+  .page-indicator {
+    text-align: center; font-size: 8px; color: #555;
+    margin-bottom: 3px; letter-spacing: 1px;
+  }
+  .page-indicator .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #333; margin: 0 2px; }
+  .page-indicator .dot.active { background: #a78bfa; }
+
+  /* Nav row */
+  .nav-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 3px;
+  }
+  .nav-btn {
+    border-radius: 4px; padding: 6px 2px;
+    text-align: center; font-size: 9px; font-weight: bold;
+  }
+  .nav-back { background: #12122a; border: 1px solid #555; color: #94a3b8; }
+  .nav-prev { background: #12122a; border: 1px solid #a78bfa55; color: #a78bfa; }
+  .nav-next { background: #1a0d30; border: 1px solid #a78bfa; color: #c4b5fd; }
+  .nav-prev.disabled { opacity: .3; }
+</style>
+
+<!-- PAGE 1 (primeira página de skills) -->
+<p style="text-align:center;font-size:11px;color:#888;margin-bottom:6px">Página 1 de 3 — começo da lista</p>
+<div class="bm" style="margin-bottom:20px">
+  <div class="scene">
+    <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+    <div class="monster-sprite">GIF</div>
+    <div class="player-sprite">CHAR</div>
+    <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:92%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+  </div>
+  <div class="textbox">Escolha uma skill:<span class="cursor"></span></div>
+  <div class="skill-area">
+    <div class="skill-grid">
+      <div class="skill-btn">✦ Bash<span class="sp">Lv1 · 5SP</span></div>
+      <div class="skill-btn">✦ HP Recovery<span class="sp">Lv1 · 3SP</span></div>
+      <div class="skill-btn">✦ Provoke<span class="sp">Lv1 · 4SP</span></div>
+      <div class="skill-btn disabled">✦ Magnum Break<span class="sp">sem SP</span></div>
+    </div>
+    <div class="page-indicator">
+      <span class="dot active"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="nav-row">
+      <div class="nav-btn nav-back">✕ VOLTAR</div>
+      <div class="nav-btn nav-prev disabled">‹ ANTERIOR</div>
+      <div class="nav-btn nav-next">PRÓXIMO ›</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 (meio da lista) -->
+<p style="text-align:center;font-size:11px;color:#888;margin-bottom:6px">Página 2 de 3 — meio da lista</p>
+<div class="bm" style="margin-bottom:20px">
+  <div class="scene">
+    <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+    <div class="monster-sprite">GIF</div>
+    <div class="player-sprite">CHAR</div>
+    <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:92%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+  </div>
+  <div class="textbox">Escolha uma skill:<span class="cursor"></span></div>
+  <div class="skill-area">
+    <div class="skill-grid">
+      <div class="skill-btn">✦ Endure<span class="sp">Lv1 · 10SP</span></div>
+      <div class="skill-btn">✦ Sword Mastery<span class="sp">Lv2 · 0SP</span></div>
+      <div class="skill-btn disabled">✦ Two-Hand Quicken<span class="sp">sem SP</span></div>
+      <div class="skill-btn">✦ Auto Berserk<span class="sp">Lv1 · 5SP</span></div>
+    </div>
+    <div class="page-indicator">
+      <span class="dot"></span><span class="dot active"></span><span class="dot"></span>
+    </div>
+    <div class="nav-row">
+      <div class="nav-btn nav-back">✕ VOLTAR</div>
+      <div class="nav-btn nav-prev">‹ ANTERIOR</div>
+      <div class="nav-btn nav-next">PRÓXIMO ›</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3 (última página) -->
+<p style="text-align:center;font-size:11px;color:#888;margin-bottom:6px">Página 3 de 3 — última página</p>
+<div class="bm">
+  <div class="scene">
+    <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+    <div class="monster-sprite">GIF</div>
+    <div class="player-sprite">CHAR</div>
+    <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:92%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+  </div>
+  <div class="textbox">Escolha uma skill:<span class="cursor"></span></div>
+  <div class="skill-area">
+    <div class="skill-grid">
+      <div class="skill-btn">✦ Pierce<span class="sp">Lv1 · 7SP</span></div>
+      <div class="skill-btn disabled">✦ Bowling Bash<span class="sp">não aprendida</span></div>
+      <div class="skill-btn" style="grid-column:span 2; opacity:.2; border-style:dashed"></div>
+    </div>
+    <div class="page-indicator">
+      <span class="dot"></span><span class="dot"></span><span class="dot active"></span>
+    </div>
+    <div class="nav-row">
+      <div class="nav-btn nav-back">✕ VOLTAR</div>
+      <div class="nav-btn nav-prev">‹ ANTERIOR</div>
+      <div class="nav-btn nav-next disabled" style="opacity:.3">PRÓXIMO ›</div>
+    </div>
+  </div>
+</div>

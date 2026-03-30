@@ -1,0 +1,178 @@
+<h2>Menu de ITEM — Lista cobre a tela de batalha</h2>
+<p class="subtitle">Ao clicar em ITEM, a lista de consumíveis ocupa toda a área superior. VOLTAR retorna ao combate.</p>
+
+<style>
+  .bm {
+    background: #0f0f1a; border: 2px solid #333;
+    border-radius: 8px; overflow: hidden;
+    font-family: monospace; color: #e0e0e0;
+    max-width: 320px; margin: 0 auto;
+    position: relative;
+  }
+
+  /* Estado normal de batalha (atrás) */
+  .scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%);
+    position: relative; height: 120px;
+  }
+  .monster-hp { position:absolute;top:7px;left:9px;background:#0d0d20cc;border:1px solid #ef444466;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .mname { font-size:9px;font-weight:bold;color:#fca5a5;margin-bottom:2px; }
+  .hp-row { display:flex;align-items:center;gap:3px; }
+  .hp-lbl { font-size:7px;color:#aaa; }
+  .hp-bar { flex:1;height:4px;background:#222;border-radius:2px;overflow:hidden; }
+  .hp-r { height:100%;background:#ef4444; }
+  .hp-g { height:100%;background:#22c55e; }
+  .hp-y { height:100%;background:#eab308; }
+  .monster-sprite { position:absolute;top:5px;right:9px;width:52px;height:52px;background:#ff000008;border:1px dashed #ef444466;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ef4444; }
+  .player-sprite { position:absolute;bottom:5px;left:12px;width:42px;height:42px;background:#0000ff08;border:1px dashed #3b82f666;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#3b82f6; }
+  .player-hp { position:absolute;bottom:5px;right:9px;background:#0d0d20cc;border:1px solid #3b82f666;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .pname { font-size:9px;font-weight:bold;color:#93c5fd;margin-bottom:2px; }
+  .textbox { background:#0a0a18;border-top:2px solid #2a2a40;padding:7px 11px;font-size:10px;color:#e8e8e8;line-height:1.5; }
+  .cursor { display:inline-block;width:5px;height:10px;background:#fff;vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite; }
+  @keyframes blink { 50%{opacity:0} }
+  .menu-2x2 { display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px;background:#06060f;border-top:1px solid #1e1e3a; }
+  .mbtn { border-radius:4px;padding:7px 4px;text-align:center;font-size:9px;font-weight:bold; }
+  .atk { background:#12122a;border:1px solid #ef4444;color:#fca5a5; }
+  .skl { background:#12122a;border:1px solid #a78bfa;color:#c4b5fd; }
+  .itm { background:#12122a;border:1px solid #34d399;color:#86efac; }
+  .fly { background:#12122a;border:1px solid #64748b;color:#94a3b8; }
+
+  /* OVERLAY — cobre tudo acima do menu */
+  .item-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    background: #0a0a18;
+    border-bottom: 2px solid #34d39955;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+  }
+  .overlay-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 11px 5px;
+    border-bottom: 1px solid #1a2a1a;
+  }
+  .overlay-title { font-size: 9px; color: #34d399; font-weight: bold; letter-spacing: 1px; }
+  .overlay-close { font-size: 9px; color: #555; }
+  .item-scroll { overflow-y: auto; }
+  .item-wide-btn {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 11px;
+    border-bottom: 1px solid #0f1f0f;
+    font-size: 10px; color: #86efac;
+    cursor: pointer;
+  }
+  .item-wide-btn:last-child { border-bottom: none; }
+  .item-wide-btn:hover { background: #0d2010; }
+  .qty-badge {
+    background: #14532d; border-radius: 3px;
+    padding: 2px 6px; font-size: 9px; color: #86efac; font-weight: bold;
+  }
+  .qty-badge.low { background: #422006; color: #fb923c; }
+
+  .nav-back {
+    display: block; width: 100%; padding: 7px; text-align: center;
+    font-size: 9px; font-weight: bold;
+    background: #06060f; border-top: 1px solid #2a2a3a; color: #64748b;
+    cursor: pointer;
+  }
+</style>
+
+<!-- ESTADO: combate normal -->
+<p style="text-align:center;font-size:10px;color:#555;margin-bottom:6px">Estado normal de batalha</p>
+<div class="bm" style="margin-bottom:24px">
+  <div class="scene">
+    <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+    <div class="monster-sprite">GIF</div>
+    <div class="player-sprite">CHAR</div>
+    <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:40%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+  </div>
+  <div class="textbox">Poring atacou! Você recebeu <span style="color:#f87171">12 de dano</span>.<span class="cursor"></span></div>
+  <div class="menu-2x2">
+    <div class="mbtn atk">⚔ ATACAR</div>
+    <div class="mbtn skl">✦ SKILL</div>
+    <div class="mbtn itm">🎒 ITEM</div>
+    <div class="mbtn fly">↩ FUGIR</div>
+  </div>
+</div>
+
+<!-- ESTADO: lista de itens aberta (overlay) -->
+<p style="text-align:center;font-size:10px;color:#555;margin-bottom:6px">Após clicar em 🎒 ITEM — lista cobre a batalha</p>
+<div class="bm" style="margin-bottom:24px">
+  <!-- Batalha por baixo (não visível, mas estrutura mantida) -->
+  <div class="scene" style="visibility:hidden"></div>
+  <div class="textbox" style="visibility:hidden">placeholder</div>
+
+  <!-- Overlay cobre tudo -->
+  <div class="item-overlay">
+    <div class="overlay-header">
+      <span class="overlay-title">🎒 CONSUMÍVEIS</span>
+      <span class="overlay-close">Poring Lv5 · HP 47%</span>
+    </div>
+    <div class="item-scroll">
+      <div class="item-wide-btn">
+        <span>🧪 Red Potion</span>
+        <span class="qty-badge">x12</span>
+      </div>
+      <div class="item-wide-btn">
+        <span>🧪 Orange Potion</span>
+        <span class="qty-badge">x4</span>
+      </div>
+      <div class="item-wide-btn">
+        <span>🍖 Meat</span>
+        <span class="qty-badge">x3</span>
+      </div>
+      <div class="item-wide-btn">
+        <span>🧪 Yellow Potion</span>
+        <span class="qty-badge low">x1</span>
+      </div>
+      <div class="item-wide-btn">
+        <span>🍬 Candy</span>
+        <span class="qty-badge">x7</span>
+      </div>
+      <div class="item-wide-btn">
+        <span>💊 Yggdrasil Berry</span>
+        <span class="qty-badge low">x1</span>
+      </div>
+    </div>
+    <div class="nav-back">✕ VOLTAR AO COMBATE</div>
+  </div>
+
+  <!-- Menu por baixo (visível, mas coberto) -->
+  <div class="menu-2x2">
+    <div class="mbtn atk">⚔ ATACAR</div>
+    <div class="mbtn skl">✦ SKILL</div>
+    <div class="mbtn itm">🎒 ITEM</div>
+    <div class="mbtn fly">↩ FUGIR</div>
+  </div>
+</div>
+
+<!-- ESTADO: lista com muitos itens (scroll) -->
+<p style="text-align:center;font-size:10px;color:#555;margin-bottom:6px">Com mais itens — área faz scroll, menu fica fixo embaixo</p>
+<div class="bm">
+  <div class="scene" style="visibility:hidden"></div>
+  <div class="textbox" style="visibility:hidden">placeholder</div>
+  <div class="item-overlay" style="max-height:195px">
+    <div class="overlay-header">
+      <span class="overlay-title">🎒 CONSUMÍVEIS</span>
+      <span class="overlay-close">Poring Lv5 · HP 47%</span>
+    </div>
+    <div class="item-scroll" style="overflow-y:scroll;max-height:130px">
+      <div class="item-wide-btn"><span>🧪 Red Potion</span><span class="qty-badge">x12</span></div>
+      <div class="item-wide-btn"><span>🧪 Orange Potion</span><span class="qty-badge">x4</span></div>
+      <div class="item-wide-btn"><span>🍖 Meat</span><span class="qty-badge">x3</span></div>
+      <div class="item-wide-btn"><span>🧪 Yellow Potion</span><span class="qty-badge low">x1</span></div>
+      <div class="item-wide-btn"><span>🍬 Candy</span><span class="qty-badge">x7</span></div>
+      <div class="item-wide-btn"><span>💊 Yggdrasil Berry</span><span class="qty-badge low">x1</span></div>
+      <div class="item-wide-btn"><span>🧃 Grape Juice</span><span class="qty-badge">x5</span></div>
+      <div class="item-wide-btn"><span>🧪 White Potion</span><span class="qty-badge">x2</span></div>
+    </div>
+    <div class="nav-back">✕ VOLTAR AO COMBATE</div>
+  </div>
+  <div class="menu-2x2">
+    <div class="mbtn atk">⚔ ATACAR</div>
+    <div class="mbtn skl">✦ SKILL</div>
+    <div class="mbtn itm">🎒 ITEM</div>
+    <div class="mbtn fly">↩ FUGIR</div>
+  </div>
+</div>
