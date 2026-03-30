@@ -4,19 +4,17 @@
 import { useEffect, useRef } from 'react'
 import { useGame } from '@/lib/game-context'
 import { Button } from '@/components/ui/button'
-import { Footprints, Swords, MapPin, ChevronRight } from 'lucide-react'
+import { Footprints, MapPin, ChevronRight } from 'lucide-react'
+import { BattleHud } from '@/components/game/battle-hud'
 
 export function MapPanel() {
   const {
     playerId, mapInfo, refreshMapInfo, currentEncounter,
-    walkMap, travelTo, attackMonster, isLoading
+    walkMap, travelTo, isLoading
   } = useGame()
 
-  // Throttle refs — 500ms per action (antifraude)
   const walkThrottle = useRef(false)
-  const attackThrottle = useRef(false)
 
-  // Seed map info on mount
   useEffect(() => {
     if (playerId && !mapInfo) refreshMapInfo()
   }, [playerId, mapInfo, refreshMapInfo])
@@ -29,16 +27,9 @@ export function MapPanel() {
     })
   }
 
-  const handleAttack = () => {
-    if (!currentEncounter || attackThrottle.current || isLoading) return
-    attackThrottle.current = true
-    attackMonster(currentEncounter.monsterId).finally(() => {
-      setTimeout(() => { attackThrottle.current = false }, 500)
-    })
-  }
-
-  const handleTravel = (destination: string) => {
-    travelTo(destination)
+  // During a battle, hand off entirely to BattleHud
+  if (currentEncounter) {
+    return <BattleHud />
   }
 
   return (
@@ -56,42 +47,15 @@ export function MapPanel() {
         </p>
       </div>
 
-      {/* Encounter Card */}
-      {currentEncounter ? (
-        <div className="game-panel p-4 border-2 border-destructive/50 bg-destructive/5">
-          <p className="font-[family-name:var(--font-pixel)] text-xs text-destructive mb-2">
-            ENCONTRO!
-          </p>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="font-[family-name:var(--font-pixel-body)] text-xl text-foreground">
-                {currentEncounter.monsterName}
-              </p>
-              <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-                HP: {currentEncounter.monsterHpCurrent} / {currentEncounter.monsterHpInitial}
-              </p>
-            </div>
-            <Swords className="w-8 h-8 text-destructive opacity-70" />
-          </div>
-          <Button
-            onClick={handleAttack}
-            disabled={isLoading}
-            className="w-full font-[family-name:var(--font-pixel)] text-sm pixel-button bg-destructive hover:bg-destructive/80"
-          >
-            {isLoading ? 'ATACANDO...' : 'ATACAR'}
-          </Button>
-        </div>
-      ) : (
-        /* Walk Button */
-        <Button
-          onClick={handleWalk}
-          disabled={isLoading}
-          className="w-full h-14 font-[family-name:var(--font-pixel)] text-sm pixel-button"
-        >
-          <Footprints className="w-5 h-5 mr-2" />
-          {isLoading ? 'ANDANDO...' : 'ANDAR'}
-        </Button>
-      )}
+      {/* Walk Button */}
+      <Button
+        onClick={handleWalk}
+        disabled={isLoading}
+        className="w-full h-14 font-[family-name:var(--font-pixel)] text-sm pixel-button"
+      >
+        <Footprints className="w-5 h-5 mr-2" />
+        {isLoading ? 'ANDANDO...' : 'ANDAR'}
+      </Button>
 
       {/* Portals */}
       {mapInfo && mapInfo.availablePortals?.length > 0 && (
@@ -104,7 +68,7 @@ export function MapPanel() {
               <Button
                 key={portal}
                 variant="outline"
-                onClick={() => handleTravel(portal)}
+                onClick={() => travelTo(portal)}
                 disabled={isLoading}
                 className="w-full justify-between font-[family-name:var(--font-pixel-body)] text-lg"
               >
