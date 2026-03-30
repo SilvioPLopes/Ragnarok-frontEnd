@@ -1,219 +1,273 @@
 # Ragnarok Emulator — Frontend
 
-Interface web do **Ragnarok Simulator**, um emulador de Ragnarok Online construído do zero com stack moderna. Este repositório contém exclusivamente o frontend Next.js que se comunica com o [backend Spring Boot](../ragnarok-simulator).
+Web interface for **Ragnarok Simulator**, a from-scratch Ragnarok Online emulator built with a modern stack. This repository contains exclusively the Next.js frontend that communicates with the [Spring Boot backend](../ragnarok-core).
 
 ---
 
-## Visão geral
+## Overview
 
-O projeto simula as mecânicas centrais do Ragnarok Online clássico:
+The project simulates the core mechanics of classic Ragnarok Online:
 
-- Criação e seleção de personagens
-- Exploração de mapas com encontros aleatórios
-- Sistema de batalha por turnos
-- Distribuição de atributos (STR / AGI / VIT / INT / DEX / LUK)
-- Sistema de skills com aprendizado e uso
-- Inventário com itens consumíveis e equipamentos
-- Mudança de classe (1ª → 2ª classe)
-- Sistema antifraude integrado com captcha e detecção de bots
+- Account registration and JWT authentication
+- Character creation (NOVICE only — class progression via in-game advancement)
+- Character selection filtered by authenticated account
+- Map exploration with minimap image and random monster encounters
+- **Pokémon-style battle screen** — monster sprite, HP bars, 2×2 action menu (Attack / Skill / Item / Flee)
+- Multi-round turn-based combat with real-time HP tracking
+- Victory overlay with reward parser and death overlay with animated feedback
+- Stat distribution (STR / AGI / VIT / INT / DEX / LUK)
+- Skill system — paged 2×2 skill submenu, `targetable` flag for offensive vs buff skills
+- Inventory with consumable use in combat and equipment toggle (equip/unequip)
+- Class advancement (1st → 2nd class)
+- Resurrection with automatic map state refresh
+- Battle log tab
+- Anti-fraud system integration (captcha, session drop, block detection)
 
 ---
 
-## Tech stack
+## Tech Stack
 
-| Camada | Tecnologia |
+| Layer | Technology |
 |---|---|
-| Framework | [Next.js 16](https://nextjs.org/) (App Router) |
-| Linguagem | TypeScript 5.7 (strict mode) |
+| Framework | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
+| Language | TypeScript 5.7 (strict mode) |
 | UI | React 19 |
-| Estilização | Tailwind CSS 4 |
-| Componentes | [shadcn/ui](https://ui.shadcn.com/) + Radix UI |
-| Notificações | [Sonner](https://sonner.emilkowal.ski/) |
-| Fontes | Press Start 2P + VT323 (Google Fonts) |
+| Styling | Tailwind CSS 4 |
+| Components | [shadcn/ui](https://ui.shadcn.com/) + Radix UI |
+| Notifications | [Sonner](https://sonner.emilkowal.ski/) |
+| Fonts | Press Start 2P + VT323 (Google Fonts) |
 | Package manager | pnpm |
-| Analytics | Vercel Analytics |
 
 ---
 
-## Pré-requisitos
+## Prerequisites
 
 - **Node.js** 20+
 - **pnpm** 9+ (`npm install -g pnpm`)
-- Backend `ragnarok-simulator` rodando em `http://localhost:8080`
+- `ragnarok-core` backend running at `http://localhost:8080`
 
 ---
 
-## Instalação e execução
+## Setup
 
 ```bash
-# 1. Clone o repositório
-git clone <url-do-repositório>
-cd ragnarok-front
-
-# 2. Instale as dependências
+# 1. Install dependencies
 pnpm install
 
-# 3. Configure as variáveis de ambiente
-cp .env.example .env.local
-# edite .env.local se necessário (veja seção de configuração)
+# 2. Configure environment
+echo "NEXT_PUBLIC_API_URL=http://localhost:8080" > .env.local
 
-# 4. Suba o servidor de desenvolvimento
+# 3. Start development server
 pnpm dev
 ```
 
-Acesse `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-> **O backend precisa estar rodando** para que as funcionalidades do jogo funcionem. Sem o backend, o frontend inicializa normalmente mas todas as chamadas à API retornam erro de conexão.
+> The backend must be running for all game features to work. Without it, the frontend loads normally but all API calls return connection errors.
 
----
+### Environment Variables
 
-## Configuração
-
-Crie um arquivo `.env.local` na raiz com:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
-```
-
-| Variável | Padrão | Descrição |
+| Variable | Default | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | URL base do backend |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | Backend base URL |
 
 ---
 
-## Estrutura do projeto
+## Project Structure
 
 ```
 ragnarok-front/
 ├── app/
-│   ├── (auth)/              # Rotas públicas (login, registro)
+│   ├── (auth)/              # Public routes
 │   │   ├── login/
 │   │   └── register/
-│   ├── (game)/              # Rotas protegidas (jogo)
+│   ├── (game)/              # Authenticated routes
 │   │   ├── create-character/
 │   │   ├── select-character/
 │   │   └── game/
-│   ├── layout.tsx           # Layout raiz (AuthProvider, Toaster)
-│   └── page.tsx             # Redireciona para /login
+│   ├── layout.tsx           # Root layout (AuthProvider, Toaster)
+│   └── page.tsx             # Redirects to /login
 │
 ├── components/
-│   ├── game/                # Painéis do jogo
-│   │   ├── player-hud.tsx       # HUD com HP/SP/Zenny
-│   │   ├── map-panel.tsx        # Mapa, andar, portais
-│   │   ├── battle-panel.tsx     # Log de batalha
-│   │   ├── skill-panel.tsx      # Skills (aprender/usar)
-│   │   ├── inventory-panel.tsx  # Inventário
-│   │   ├── status-panel.tsx     # Atributos e distribuição
-│   │   └── class-change-panel.tsx
-│   └── ui/                  # Componentes shadcn/ui
+│   ├── game/
+│   │   ├── player-hud.tsx          # HP / SP / Zenny sidebar
+│   │   ├── map-panel.tsx           # Map minimap, walk, portals — delegates to BattleHud during encounter
+│   │   ├── map-sprite.tsx          # Map minimap image (ratemyserver CDN, multi-CDN fallback)
+│   │   ├── battle-hud.tsx          # Pokémon-style battle screen (scene + textbox + menu)
+│   │   ├── battle-menu.tsx         # 2×2 action menu (Attack / Skill / Item / Flee)
+│   │   ├── battle-skill-menu.tsx   # Paged 2×2 skill submenu
+│   │   ├── battle-item-overlay.tsx # Consumables overlay during combat
+│   │   ├── battle-victory-overlay.tsx  # Victory screen with reward parser
+│   │   ├── monster-sprite.tsx      # Monster GIF (ratemyserver CDN, icon fallback)
+│   │   ├── battle-panel.tsx        # Battle log (LOG tab)
+│   │   ├── skill-panel.tsx         # Learn and use skills
+│   │   ├── inventory-panel.tsx     # Items — use consumables, equip gear
+│   │   ├── status-panel.tsx        # Stats display and point distribution
+│   │   └── class-change-panel.tsx  # Class advancement
+│   └── ui/                         # shadcn/ui components
 │
 ├── lib/
-│   ├── api.ts               # Chamadas HTTP ao backend (namespaces por domínio)
-│   ├── types.ts             # Tipos TypeScript compartilhados
-│   ├── game-context.tsx     # Estado global do jogo (GameProvider)
-│   ├── auth-context.tsx     # Estado de autenticação (AuthProvider)
+│   ├── api.ts               # HTTP calls to backend, organized by namespace
+│   ├── types.ts             # Shared TypeScript types (source of truth)
+│   ├── game-context.tsx     # Global game state (GameProvider)
+│   ├── auth-context.tsx     # Auth state — JWT login/register (AuthProvider)
 │   └── utils.ts             # Helpers (cn, etc.)
 │
 └── docs/
     └── superpowers/
-        ├── specs/           # Documentos de design
-        └── plans/           # Planos de implementação
+        ├── specs/           # Design documents
+        └── plans/           # Implementation plans
 ```
 
 ---
 
-## Arquitetura
+## Architecture
 
-### Contextos globais
-
-**`GameProvider`** (`lib/game-context.tsx`)
-Gerencia todo o estado de jogo: personagem ativo, encontros, log de batalha, inventário, skills e mapa. Configurado no layout de `(game)`.
+### Global Contexts
 
 **`AuthProvider`** (`lib/auth-context.tsx`)
-Gerencia autenticação do usuário. Atualmente utiliza **stub com localStorage** — o login aceita qualquer credencial sem validação backend. Será integrado ao sistema de autenticação real em versão futura.
+Manages authentication. Calls `POST /api/accounts/login` and `POST /api/accounts/register` on the backend. Stores the JWT in `localStorage` (`auth_token`) and clears demo mode flags on real login.
 
-### Camada de API
+**`GameProvider`** (`lib/game-context.tsx`)
+Manages all game state: active player, encounters, battle log, inventory, skills, and map info. Configured in the `(game)` route layout.
 
-`lib/api.ts` organiza as chamadas HTTP em namespaces:
+### API Layer
+
+`lib/api.ts` organizes HTTP calls into namespaces. All requests automatically include `Authorization: Bearer <token>` (read from `localStorage`) and `X-Action-Timestamp`.
 
 ```ts
-playerApi    // GET/POST /api/players
-battleApi    // POST /api/battle/attack
-skillApi     // GET/POST /api/players/:id/skills
-inventoryApi // GET/POST /api/players/:id/inventory
-mapApi       // GET/POST /api/players/:id/map
+playerApi    // list, get, create, distributeStats, resurrect, listAvailableClasses, changeClass
+battleApi    // attack
+skillApi     // list, learn, use (with optional monsterId for combat targeting)
+inventoryApi // list, use, equip (toggle)
+mapApi       // get, walk, travel
+authApi      // login, register
 ```
 
-Todas as respostas são tipadas via `lib/types.ts`. O módulo inclui tratamento automático de respostas antifraude (`FraudResponse`).
+All responses are typed via `lib/types.ts`. The module includes automatic anti-fraud response handling (`FraudResponse`).
 
-### Sistema antifraude
+### Combat Flow
 
-O backend pode retornar um campo `fraud` em qualquer resposta. O frontend trata automaticamente os seguintes `requiredAction`:
+```
+walk()  →  encounterOccurred: true  →  setCurrentEncounter(...)
+  └── MapPanel renders BattleHud (Pokémon-style)
 
-| Ação | Comportamento |
+BattleHud:
+  ├── Attack  →  battleApi.attack()  →  { message, monsterHpRemaining }
+  │     ├── 'VITÓRIA'  →  BattleVictoryOverlay  →  clearEncounter() + refreshMapInfo()
+  │     ├── 'FATAL'    →  dying animation (1.5s)  →  clearEncounter() + refreshPlayer() + refreshMapInfo()
+  │     └── otherwise  →  update monsterHpCurrent, next round
+  ├── Skill   →  BattleSkillMenu (2×2 paged)  →  skillApi.use(aegisName, monsterId?)
+  ├── Item    →  BattleItemOverlay  →  inventoryApi.use()
+  └── Flee    →  clearEncounter()
+```
+
+`refreshMapInfo()` is called on all battle endings. Without it, after death the player teleports to their save point but the portal list stays stale — clicking any portal triggers a 400 from the backend.
+
+### Anti-Fraud System
+
+The backend can return a `fraud` field in any response. The frontend handles it automatically:
+
+| Action | Behavior |
 |---|---|
-| `DROP_SESSION` | Remove sessão e redireciona para login |
-| `SHOW_CAPTCHA` | Exibe modal de verificação |
-| `CANCEL_ACTION` | Toast de erro, ação cancelada |
-| `BLOCKED` | Conta bloqueada, logout forçado |
-| `FLAG_FOR_REVIEW` | Log silencioso |
+| `DROP_SESSION` | Clears session, redirects to login |
+| `SHOW_CAPTCHA` | Opens verification modal |
+| `CANCEL_ACTION` | Error toast, action cancelled |
+| `BLOCKED` | Account blocked toast, forced logout |
+| `FLAG_FOR_REVIEW` | Silent console log |
 
 ---
 
-## Fluxo de navegação
+## Navigation Flow
 
 ```
 /login
-  └─► /select-character     (após login)
-        ├─► /create-character  (novo personagem)
-        └─► /game              (personagem selecionado)
-              ├── Aba Mapa       (andar, batalha, portais)
-              ├── Aba Skills     (aprender e usar skills)
-              ├── Aba Itens      (inventário)
-              ├── Aba Status     (atributos + distribuição)
-              └── Aba Classe     (mudança de classe)
+  └─► /select-character     (after login — lists characters for authenticated account)
+        ├─► /create-character  (new character — always starts as NOVICE)
+        └─► /game              (character selected)
+              ├── MAP tab    (walk, encounter, attack, portals)
+              ├── SKILLS tab (learn and use skills)
+              ├── ITEMS tab  (use consumables, equip/unequip weapons and armor)
+              ├── STATUS tab (view stats, distribute stat points)
+              ├── CLASS tab  (class advancement)
+              └── LOG tab    (battle log history)
 ```
 
 ---
 
-## Scripts disponíveis
+## Backend Integration
+
+This frontend connects to `ragnarok-core` (Spring Boot, port 8080). Key contracts:
+
+| Endpoint | Used for |
+|---|---|
+| `POST /api/accounts/register` | Registration |
+| `POST /api/accounts/login` | Login → returns `{ token, accountId }` |
+| `GET /api/players` | List characters (filtered by account via JWT) |
+| `POST /api/players` | Create character (body: `{ name, jobClass: "NOVICE" }`) |
+| `GET /api/players/{id}` | Load player state |
+| `PUT /api/players/{id}/stats` | Distribute stat points |
+| `POST /api/players/{id}/resurrect` | Resurrect after death |
+| `GET /api/players/{id}/class-change` | List available class advancements |
+| `POST /api/players/{id}/class-change` | Execute class change |
+| `GET /api/players/{id}/map` | Current map + available portals |
+| `POST /api/players/{id}/map/walk` | Walk — may trigger encounter |
+| `POST /api/players/{id}/map/travel` | Travel to portal destination |
+| `POST /api/battle/attack` | Attack monster — returns `{ message, monsterHpRemaining }` |
+| `GET /api/players/{id}/skills` | List skills |
+| `POST /api/players/{id}/skills/{aegisName}/learn` | Learn skill |
+| `POST /api/players/{id}/skills/{aegisName}/use` | Use skill (optional `monsterId` body) |
+| `GET /api/players/{id}/inventory` | List inventory |
+| `POST /api/players/{id}/inventory/{itemId}/use` | Use consumable |
+| `POST /api/players/{id}/inventory/{uuid}/equip` | Toggle equip/unequip |
+
+---
+
+## Feature Status
+
+| Feature | Status |
+|---|---|
+| Login / Registration | Connected to real backend (JWT) |
+| Character creation | Functional — always creates as NOVICE |
+| Character selection | Functional — filtered by authenticated account |
+| Map / Walk | Functional — minimap image via ratemyserver CDN |
+| Multi-round combat | Functional — Pokémon-style BattleHud |
+| Battle Victory overlay | Functional — reward parser |
+| Battle Death overlay | Functional — 1.5s animation + resurrection |
+| Skill use in combat | Functional — `targetable` flag controls monsterId routing |
+| Items in combat | Functional — BattleItemOverlay |
+| Battle log | Functional — LOG tab |
+| Skills (out of combat) | Functional — learn and use |
+| Inventory — use items | Functional |
+| Inventory — equip/unequip | Functional |
+| Stat distribution | Functional |
+| Class advancement | Functional |
+| Demo mode | Available via "ENTER DEMO MODE" on login page |
+| Map refresh after battle | Fixed — stale portal list no longer causes 400s after death |
+
+---
+
+## Available Scripts
 
 ```bash
-pnpm dev      # Servidor de desenvolvimento (Turbopack)
-pnpm build    # Build de produção
-pnpm start    # Servidor de produção
-pnpm lint     # ESLint
+pnpm dev          # Development server (Turbopack) — http://localhost:3000
+pnpm build        # Production build
+pnpm start        # Production server
+pnpm lint         # ESLint
+npx tsc --noEmit  # Type check without build
 ```
 
 ---
 
-## Estado atual
+## Contributing
 
-| Funcionalidade | Status |
-|---|---|
-| Login / Registro | Stub (localStorage) — backend pendente |
-| Criação de personagem | Funcional |
-| Seleção de personagem | Lista vazia — endpoint de listagem pendente |
-| Mapa / Andar | Funcional |
-| Batalha | Funcional |
-| Skills | Funcional |
-| Inventário | Funcional |
-| Distribuição de atributos | Funcional |
-| Mudança de classe | Stub — endpoints backend pendentes |
-| Ressuscitar | Pendente (endpoint `POST /api/players/:id/resurrect`) |
-| Equipar itens | Pendente (endpoint `POST /api/players/:id/inventory/:id/equip`) |
+1. Branch from `master`
+2. Implement your feature or fix
+3. Ensure `npx tsc --noEmit` passes with zero errors
+4. Open a Pull Request with a clear description
 
 ---
 
-## Contribuindo
+## License
 
-1. Crie uma branch a partir de `master`
-2. Implemente sua feature ou correção
-3. Garanta que `pnpm tsc --noEmit` passe sem erros
-4. Abra um Pull Request com descrição clara
-
----
-
-## Licença
-
-Projeto privado. Todos os direitos reservados.
+Private project. All rights reserved.

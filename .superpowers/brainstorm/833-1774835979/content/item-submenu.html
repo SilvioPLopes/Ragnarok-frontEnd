@@ -1,0 +1,177 @@
+<h2>Menu de ITEM em Batalha</h2>
+<p class="subtitle">Apenas consumíveis, com quantidade. Qual formato agrada mais?</p>
+
+<style>
+  .bm {
+    background: #0f0f1a; border: 2px solid #333;
+    border-radius: 8px; overflow: hidden;
+    font-family: monospace; color: #e0e0e0;
+    max-width: 320px; margin: 0 auto;
+  }
+  .scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%);
+    position: relative; height: 110px;
+  }
+  .monster-hp { position:absolute;top:7px;left:9px;background:#0d0d20cc;border:1px solid #ef444466;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .mname { font-size:9px;font-weight:bold;color:#fca5a5;margin-bottom:2px; }
+  .hp-row { display:flex;align-items:center;gap:3px; }
+  .hp-lbl { font-size:7px;color:#aaa; }
+  .hp-bar { flex:1;height:4px;background:#222;border-radius:2px;overflow:hidden; }
+  .hp-r { height:100%;background:#ef4444; }
+  .hp-g { height:100%;background:#22c55e; }
+  .hp-y { height:100%;background:#eab308; }
+  .monster-sprite { position:absolute;top:5px;right:9px;width:52px;height:52px;background:#ff000008;border:1px dashed #ef444466;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ef4444; }
+  .player-sprite { position:absolute;bottom:5px;left:12px;width:42px;height:42px;background:#0000ff08;border:1px dashed #3b82f666;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#3b82f6; }
+  .player-hp { position:absolute;bottom:5px;right:9px;background:#0d0d20cc;border:1px solid #3b82f666;border-radius:5px;padding:4px 7px;min-width:88px; }
+  .pname { font-size:9px;font-weight:bold;color:#93c5fd;margin-bottom:2px; }
+  .textbox { background:#0a0a18;border-top:2px solid #2a2a40;padding:6px 11px;font-size:10px;color:#e8e8e8;line-height:1.5; }
+  .cursor { display:inline-block;width:5px;height:10px;background:#fff;vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite; }
+  @keyframes blink { 50%{opacity:0} }
+  .item-area { background:#06060f;padding:5px;border-top:1px solid #1e1e3a; }
+  .nav-back { display:block;width:100%;border-radius:4px;padding:5px;text-align:center;font-size:9px;font-weight:bold;background:#12122a;border:1px solid #555;color:#94a3b8;margin-top:3px; }
+
+  /* A — lista com linhas */
+  .item-list { list-style:none;margin:0;padding:0; }
+  .item-line {
+    display:flex;justify-content:space-between;align-items:center;
+    padding:5px 4px;border-bottom:1px solid #1a1a2e;font-size:10px;
+  }
+  .item-line:last-child { border-bottom:none; }
+  .item-name { color:#86efac; }
+  .item-qty { font-size:9px;color:#888;margin-left:4px; }
+  .item-arrow { color:#34d399;font-size:10px; }
+
+  /* B — botões largos */
+  .item-btn-list { display:flex;flex-direction:column;gap:3px; }
+  .item-wide-btn {
+    display:flex;justify-content:space-between;align-items:center;
+    background:#021a0d;border:1px solid #34d39955;
+    border-radius:4px;padding:6px 8px;font-size:10px;color:#86efac;
+  }
+  .qty-badge { background:#14532d;border-radius:3px;padding:1px 5px;font-size:9px;color:#86efac;font-weight:bold; }
+
+  /* C — grade 2x2 compacta */
+  .item-grid { display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:3px; }
+  .item-card {
+    background:#021a0d;border:1px solid #34d39955;
+    border-radius:4px;padding:6px 4px;text-align:center;font-size:9px;color:#86efac;
+  }
+  .item-card .qty-num { display:block;font-size:14px;font-weight:bold;color:#22c55e;line-height:1.2; }
+  .item-card .qty-label { font-size:7px;color:#888; }
+</style>
+
+<div class="cards">
+
+  <!-- A — Lista simples com seta -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:40%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+        </div>
+        <div class="textbox">Escolha um item:<span class="cursor"></span></div>
+        <div class="item-area">
+          <ul class="item-list">
+            <li class="item-line">
+              <span class="item-name">▶ Red Potion <span class="item-qty">x5</span></span>
+              <span class="item-arrow">›</span>
+            </li>
+            <li class="item-line">
+              <span class="item-name">&nbsp;&nbsp;Yellow Potion <span class="item-qty">x2</span></span>
+              <span class="item-arrow">›</span>
+            </li>
+            <li class="item-line">
+              <span class="item-name">&nbsp;&nbsp;Meat <span class="item-qty">x1</span></span>
+              <span class="item-arrow">›</span>
+            </li>
+          </ul>
+          <span class="nav-back">✕ VOLTAR</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Lista com linhas e seta</h3>
+      <p>Lista estilo terminal. Cursor "▶" marca o item selecionado. Quantidade ao lado do nome. Leve e rápida de ler.</p>
+    </div>
+  </div>
+
+  <!-- B — Botões largos com badge -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:40%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+        </div>
+        <div class="textbox">Escolha um item:<span class="cursor"></span></div>
+        <div class="item-area">
+          <div class="item-btn-list">
+            <div class="item-wide-btn">
+              <span>🧪 Red Potion</span>
+              <span class="qty-badge">x5</span>
+            </div>
+            <div class="item-wide-btn">
+              <span>🧪 Yellow Potion</span>
+              <span class="qty-badge">x2</span>
+            </div>
+            <div class="item-wide-btn">
+              <span>🍖 Meat</span>
+              <span class="qty-badge">x1</span>
+            </div>
+          </div>
+          <span class="nav-back">✕ VOLTAR</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Botões largos com badge de quantidade</h3>
+      <p>Cada item é um botão largo clicável. Badge verde com a quantidade à direita. Maior área de toque, mais fácil de clicar.</p>
+    </div>
+  </div>
+
+  <!-- C — Grade 2x2 com número grande -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:40%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+        </div>
+        <div class="textbox">Escolha um item:<span class="cursor"></span></div>
+        <div class="item-area">
+          <div class="item-grid">
+            <div class="item-card">
+              🧪 Red Potion
+              <span class="qty-num">5</span>
+              <span class="qty-label">disponíveis</span>
+            </div>
+            <div class="item-card">
+              🧪 Yellow Potion
+              <span class="qty-num">2</span>
+              <span class="qty-label">disponíveis</span>
+            </div>
+            <div class="item-card">
+              🍖 Meat
+              <span class="qty-num">1</span>
+              <span class="qty-label">disponível</span>
+            </div>
+            <div class="item-card" style="opacity:.2;border-style:dashed"></div>
+          </div>
+          <span class="nav-back">✕ VOLTAR</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Grade 2×2 com número em destaque</h3>
+      <p>Mesmo padrão da grade de skills. Número grande centralizado em cada card. Visual consistente com o menu de skills.</p>
+    </div>
+  </div>
+
+</div>

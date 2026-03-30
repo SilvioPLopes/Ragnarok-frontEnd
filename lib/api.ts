@@ -68,7 +68,15 @@ async function apiFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const url = `${BASE_URL}${path}`
+  const method = options.method ?? 'GET'
+  const bodyParsed = options.body ? (() => { try { return JSON.parse(options.body as string) } catch { return options.body } })() : undefined
+
+  console.log(`[apiFetch] → ${method} ${path}`, bodyParsed ?? '(no body)', {
+    hasToken: !!token,
+  })
+
+  const res = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -80,12 +88,20 @@ async function apiFetch<T>(
 
   if (!res.ok) {
     let message = `HTTP ${res.status}`
+    let errorBody: unknown = null
     try {
-      const err = await res.json()
-      message = err?.message ?? message
+      errorBody = await res.json()
+      message = (errorBody as any)?.error ?? (errorBody as any)?.message ?? message
     } catch { /* no body */ }
+    console.error(`[apiFetch] ✗ ${method} ${path}`, {
+      status: res.status,
+      sentBody: bodyParsed,
+      errorBody,
+    })
     throw new Error(message)
   }
+
+  console.log(`[apiFetch] ✓ ${method} ${path}`, { status: res.status })
 
   // Handle void responses (e.g., travel returns 200 with no body)
   const contentType = res.headers.get('content-type') ?? ''
@@ -103,6 +119,10 @@ async function apiFetch<T>(
 // ─── API namespaces ───────────────────────────────────────────────────────────
 
 export const playerApi = {
+  list(): Promise<PlayerResponse[]> {
+    return apiFetch<PlayerResponse[]>('/api/players')
+  },
+
   get(id: number): Promise<PlayerResponse> {
     return apiFetch<PlayerResponse>(`/api/players/${id}`)
   },
@@ -111,6 +131,21 @@ export const playerApi = {
     return apiFetch<PlayerResponse>('/api/players', {
       method: 'POST',
       body: JSON.stringify({ name, jobClass }),
+    })
+  },
+
+  resurrect(id: number): Promise<PlayerResponse> {
+    return apiFetch<PlayerResponse>(`/api/players/${id}/resurrect`, { method: 'POST' })
+  },
+
+  listAvailableClasses(id: number): Promise<string[]> {
+    return apiFetch<string[]>(`/api/players/${id}/class-change`)
+  },
+
+  changeClass(id: number, targetClass: string): Promise<PlayerResponse> {
+    return apiFetch<PlayerResponse>(`/api/players/${id}/class-change`, {
+      method: 'POST',
+      body: JSON.stringify({ targetClass }),
     })
   },
 
@@ -148,17 +183,20 @@ export const skillApi = {
     )
   },
 
-  /** skillName must be skill.aegisName, NOT skill.name */
+  /** skillName must be skill.aegisName, NOT skill.name.
+   *  Pass monsterId only for targetable (offensive) skills — self/buff skills must omit it. */
   use(
     playerId: number,
     aegisName: string,
     monsterId?: number
   ): Promise<{ message: string }> {
+    const body = monsterId != null ? { monsterId } : {}
+    console.log('[skillApi.use]', { playerId, aegisName, monsterId, body })
     return apiFetch<{ message: string }>(
       `/api/players/${playerId}/skills/${aegisName}/use`,
       {
         method: 'POST',
-        body: monsterId !== undefined ? JSON.stringify({ monsterId }) : undefined,
+        body: JSON.stringify(body),
       }
     )
   },
@@ -172,6 +210,13 @@ export const inventoryApi = {
   use(playerId: number, itemId: string): Promise<{ message: string }> {
     return apiFetch<{ message: string }>(
       `/api/players/${playerId}/inventory/${itemId}/use`,
+      { method: 'POST' }
+    )
+  },
+
+  equip(playerId: number, itemUuid: string): Promise<{ result: string }> {
+    return apiFetch<{ result: string }>(
+      `/api/players/${playerId}/inventory/${itemUuid}/equip`,
       { method: 'POST' }
     )
   },

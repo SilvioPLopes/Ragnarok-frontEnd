@@ -1,0 +1,313 @@
+<h2>Variações do Layout A</h2>
+<p class="subtitle">Player à esquerda, monstro à direita — como no Pokémon. Escolha a variação que mais agrada.</p>
+
+<style>
+  .bm {
+    background: #0f0f1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: monospace;
+    font-size: 11px;
+    color: #e0e0e0;
+  }
+
+  /* SCENE BASE */
+  .scene {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 12px 14px 8px;
+    min-height: 120px;
+  }
+  .scene-a1 { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%); }
+  .scene-a2 { background: linear-gradient(180deg, #0d1f0d 0%, #163316 55%, #0a1a0a 100%); }
+  .scene-a3 { background: #0f0f1a; border-bottom: 2px solid #222; }
+  .scene-a4 { background: radial-gradient(ellipse at 50% 120%, #3b0000 0%, #0f0f1a 60%); }
+
+  .fighter { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .fighter.enemy { align-items: flex-end; }
+  .fighter.enemy .hp-block { text-align: right; }
+
+  .sprite {
+    width: 54px; height: 54px;
+    background: #ffffff08;
+    border: 1px dashed #444;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #666;
+  }
+  .sprite.player { background: #0000ff08; border-color: #3b82f6; color: #3b82f6; }
+  .sprite.enemy  { background: #ff000008; border-color: #ef4444; color: #ef4444; }
+
+  /* Pokémon-style HP box */
+  .hp-box {
+    background: #1a1a2e;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 4px 8px;
+    min-width: 100px;
+  }
+  .hp-box .name { font-size: 10px; font-weight: bold; color: #fff; margin-bottom: 2px; }
+  .hp-box .level { font-size: 8px; color: #888; float: right; }
+  .hp-bar-row { display: flex; align-items: center; gap: 4px; }
+  .hp-label { font-size: 8px; color: #aaa; }
+  .hp-bar { flex: 1; height: 5px; background: #333; border-radius: 3px; overflow: hidden; }
+  .hp-green  { height: 100%; background: #22c55e; }
+  .hp-yellow { height: 100%; background: #eab308; }
+  .hp-red    { height: 100%; background: #ef4444; }
+  .hp-num { font-size: 8px; color: #888; }
+
+  /* Textbox */
+  .textbox {
+    background: #0d0d1a;
+    border-top: 2px solid #444;
+    padding: 8px 12px;
+    min-height: 46px;
+    font-size: 11px;
+    color: #e8e8e8;
+    line-height: 1.6;
+  }
+  .cursor { display: inline-block; width: 6px; height: 11px; background: #fff; vertical-align: middle; margin-left: 2px; animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Ground lines (Pokémon style) */
+  .ground-player { border-top: 3px solid #5a4a3a; width: 60px; margin-bottom: -2px; }
+  .ground-enemy  { border-top: 3px solid #3a4a2a; width: 60px; margin-bottom: -2px; }
+
+  /* Menu grid variants */
+  .menu-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    padding: 6px;
+    background: #06060f;
+    border-top: 1px solid #2a2a3a;
+  }
+  .mbtn {
+    border-radius: 4px;
+    padding: 7px 4px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* A1 menu — flat com bordas coloridas */
+  .menu-flat .mbtn { background: #12122a; border: 1px solid #333; color: #ccc; }
+  .menu-flat .mbtn.atk { border-color: #ef4444; color: #fca5a5; }
+  .menu-flat .mbtn.skl { border-color: #a78bfa; color: #c4b5fd; }
+  .menu-flat .mbtn.itm { border-color: #34d399; color: #86efac; }
+  .menu-flat .mbtn.fly { border-color: #64748b; color: #94a3b8; }
+
+  /* A2 menu — filled blocks */
+  .menu-filled .mbtn.atk { background: #7f1d1d; border: none; color: #fecaca; }
+  .menu-filled .mbtn.skl { background: #4c1d95; border: none; color: #ddd6fe; }
+  .menu-filled .mbtn.itm { background: #14532d; border: none; color: #bbf7d0; }
+  .menu-filled .mbtn.fly { background: #1e293b; border: none; color: #94a3b8; }
+
+  /* A3 menu — pokémon retro (light box) */
+  .menu-retro {
+    background: #e8e0c8;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    padding: 6px;
+    border-top: 3px solid #333;
+  }
+  .menu-retro .mbtn { background: #d0c8a8; border: 2px solid #555; color: #1a1a1a; font-family: monospace; font-size: 10px; border-radius: 2px; }
+  .menu-retro .mbtn.atk { border-color: #8b0000; }
+  .menu-retro .selected-indicator { grid-column: span 2; font-size: 9px; color: #444; text-align: right; padding: 0 4px; }
+
+  /* A4 menu — icon pills */
+  .menu-pills {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    background: #06060f;
+    border-top: 1px solid #2a2a3a;
+    justify-content: center;
+  }
+  .menu-pills .mbtn { background: #12122a; border: 1px solid #333; color: #ccc; border-radius: 20px; padding: 6px 10px; font-size: 10px; }
+  .menu-pills .mbtn.atk { border-color: #ef4444; color: #fca5a5; background: #1f0505; }
+  .menu-pills .mbtn.skl { border-color: #a78bfa; color: #c4b5fd; background: #0d0520; }
+  .menu-pills .mbtn.itm { border-color: #34d399; color: #86efac; background: #021a0d; }
+  .menu-pills .mbtn.fly { border-color: #64748b; color: #94a3b8; }
+</style>
+
+<div class="cards">
+
+  <!-- A1: Clássico noturno -->
+  <div class="card" data-choice="a1" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene scene-a1">
+          <!-- Player LEFT -->
+          <div class="fighter player-side">
+            <div class="hp-box">
+              <span class="name">Novice</span><span class="level">Lv 3</span>
+              <div class="hp-bar-row">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar"><div class="hp-green" style="width:92%"></div></div>
+                <span class="hp-num">92/100</span>
+              </div>
+            </div>
+            <div class="ground-player"></div>
+            <div class="sprite player">CHAR</div>
+          </div>
+          <!-- Enemy RIGHT -->
+          <div class="fighter enemy">
+            <div class="hp-box">
+              <span class="name">Poring</span><span class="level">Lv 5</span>
+              <div class="hp-bar-row">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar"><div class="hp-red" style="width:47%"></div></div>
+              </div>
+            </div>
+            <div class="ground-enemy" style="align-self:flex-end"></div>
+            <div class="sprite enemy">GIF</div>
+          </div>
+        </div>
+        <div class="textbox">
+          Poring atacou! Você recebeu <span style="color:#f87171">12 de dano</span>.<span class="cursor"></span>
+        </div>
+        <div class="menu-2x2 menu-flat">
+          <div class="mbtn atk">⚔ ATACAR</div>
+          <div class="mbtn skl">✦ SKILL</div>
+          <div class="mbtn itm">🎒 ITEM</div>
+          <div class="mbtn fly">↩ FUGIR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A1 — Noturno com bordas coloridas</h3>
+      <p>Fundo degradê azul escuro→terra. Menu minimalista com bordas coloridas por ação. Closest ao visual atual do projeto.</p>
+    </div>
+  </div>
+
+  <!-- A2: Dark filled buttons -->
+  <div class="card" data-choice="a2" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene scene-a2">
+          <div class="fighter player-side">
+            <div class="hp-box">
+              <span class="name">Novice</span><span class="level">Lv 3</span>
+              <div class="hp-bar-row">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar"><div class="hp-yellow" style="width:45%"></div></div>
+                <span class="hp-num">45/100</span>
+              </div>
+            </div>
+            <div class="ground-player"></div>
+            <div class="sprite player">CHAR</div>
+          </div>
+          <div class="fighter enemy">
+            <div class="hp-box">
+              <span class="name">Poring</span><span class="level">Lv 5</span>
+              <div class="hp-bar-row">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar"><div class="hp-red" style="width:20%"></div></div>
+              </div>
+            </div>
+            <div class="ground-enemy" style="align-self:flex-end"></div>
+            <div class="sprite enemy">GIF</div>
+          </div>
+        </div>
+        <div class="textbox">
+          Você usou <span style="color:#c4b5fd">Bash Lv.1</span>! Poring recebeu <span style="color:#fbbf24">38 de dano</span>.<span class="cursor"></span>
+        </div>
+        <div class="menu-2x2 menu-filled">
+          <div class="mbtn atk">⚔ ATACAR</div>
+          <div class="mbtn skl">✦ SKILL</div>
+          <div class="mbtn itm">🎒 ITEM</div>
+          <div class="mbtn fly">↩ FUGIR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A2 — Botões sólidos coloridos</h3>
+      <p>Fundo floresta escura. Cada ação tem cor de fundo própria (vermelho, roxo, verde, cinza). Mais impacto visual, hierarquia clara.</p>
+    </div>
+  </div>
+
+  <!-- A3: Retro Pokémon -->
+  <div class="card" data-choice="a3" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene scene-a3" style="border-bottom: 3px solid #333">
+          <div class="fighter player-side">
+            <div class="sprite player" style="width:48px;height:48px;border:2px solid #3b82f6">CHAR</div>
+            <div style="font-size:9px;color:#aaa;margin-top:3px">Novice Lv3</div>
+            <div class="hp-bar" style="width:70px;margin-top:2px"><div class="hp-yellow" style="width:45%"></div></div>
+          </div>
+          <div class="fighter enemy">
+            <div class="sprite enemy" style="width:56px;height:56px;border:2px solid #ef4444">GIF</div>
+            <div style="font-size:9px;color:#aaa;margin-top:3px;text-align:right">Poring Lv5</div>
+            <div class="hp-bar" style="width:70px;margin-top:2px"><div class="hp-red" style="width:20%"></div></div>
+          </div>
+        </div>
+        <div class="textbox" style="background:#e8e0c8;color:#1a1a1a;border-top:3px solid #333;font-family:monospace">
+          O Poring está quase derrotado!<span class="cursor" style="background:#1a1a1a"></span>
+        </div>
+        <div class="menu-retro">
+          <div class="mbtn atk">ATACAR</div>
+          <div class="mbtn skl">SKILL</div>
+          <div class="mbtn itm">MOCHILA</div>
+          <div class="mbtn fly">FUGIR</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A3 — Retrô GameBoy/Pokémon</h3>
+      <p>Textbox e menu em bege/creme, borda preta grossa, fundo escuro neutro na cena. Referência direta ao Pokémon GBA/DS.</p>
+    </div>
+  </div>
+
+  <!-- A4: Pills moderno -->
+  <div class="card" data-choice="a4" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene scene-a4">
+          <div class="fighter player-side">
+            <div class="hp-box" style="background:#0a0a1a;border-color:#3b82f6">
+              <span class="name" style="color:#93c5fd">Novice</span><span class="level">Lv 3</span>
+              <div class="hp-bar-row">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar"><div class="hp-green" style="width:92%"></div></div>
+                <span class="hp-num">92/100</span>
+              </div>
+            </div>
+            <div class="ground-player"></div>
+            <div class="sprite player" style="width:52px;height:52px">CHAR</div>
+          </div>
+          <div class="fighter enemy">
+            <div class="hp-box" style="background:#0a0a1a;border-color:#ef4444">
+              <span class="name" style="color:#fca5a5">Poring</span><span class="level">Lv 5</span>
+              <div class="hp-bar-row">
+                <span class="hp-label">HP</span>
+                <div class="hp-bar"><div class="hp-red" style="width:47%"></div></div>
+              </div>
+            </div>
+            <div class="ground-enemy" style="align-self:flex-end"></div>
+            <div class="sprite enemy" style="width:52px;height:52px">GIF</div>
+          </div>
+        </div>
+        <div class="textbox" style="background:#080812;border-top:1px solid #1e1e3a">
+          Você atacou o Poring por <span style="color:#fbbf24">24 de dano</span>!<span class="cursor"></span>
+        </div>
+        <div class="menu-pills">
+          <div class="mbtn atk">⚔ ATACAR</div>
+          <div class="mbtn skl">✦ SKILL</div>
+          <div class="mbtn itm">🎒 ITEM</div>
+          <div class="mbtn fly">↩</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A4 — Dark moderno com pills</h3>
+      <p>Fundo radial vermelho sutil (atmosfera de perigo). Menu em pílulas horizontais. Visual mais limpo e contemporâneo, mantendo a paleta escura.</p>
+    </div>
+  </div>
+
+</div>

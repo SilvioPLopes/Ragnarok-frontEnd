@@ -19,6 +19,20 @@ export function InventoryPanel() {
     if (playerId) refreshInventory()
   }, [playerId, refreshInventory])
 
+  const handleEquip = async (item: InventoryItem) => {
+    if (!playerId || loading) return
+    setLoading(item.id)
+    try {
+      const res = await inventoryApi.equip(playerId, item.id)
+      toast.success(res.result)
+      await refreshInventory()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao equipar item')
+    } finally {
+      setLoading(null)
+    }
+  }
+
   const handleUse = async (item: InventoryItem) => {
     if (!playerId || loading) return
     setLoading(item.id)
@@ -95,12 +109,11 @@ export function InventoryPanel() {
                   <Button
                     size="sm"
                     variant="outline"
-                    disabled
-                    title="Aguardando implementação no servidor"
-                    className="font-[family-name:var(--font-pixel)] text-[10px] opacity-40"
+                    onClick={() => handleEquip(item)}
+                    disabled={loading === item.id}
+                    className="font-[family-name:var(--font-pixel)] text-[10px]"
                   >
-                    EQUIPAR
-                    {/* TODO: aguardando endpoint core — POST /api/players/{id}/inventory/{uuid}/equip */}
+                    {loading === item.id ? '...' : item.equipped ? 'DESEQUIPAR' : 'EQUIPAR'}
                   </Button>
                 )}
               </div>

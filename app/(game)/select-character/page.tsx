@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import { useGame } from '@/lib/game-context'
+import { playerApi } from '@/lib/api'
 import type { Player, JobClass } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -150,9 +151,15 @@ export default function SelectCharacterPage() {
       return
     }
 
-    // Sem endpoint de listagem no backend ainda — lista começa vazia
-    setPlayers([])
-    setIsLoading(false)
+    try {
+      const data = await playerApi.list()
+      setPlayers(data)
+      if (data.length > 0) setSelectedPlayer(data[0])
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao carregar personagens')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSelectPlayer = (player: Player) => {

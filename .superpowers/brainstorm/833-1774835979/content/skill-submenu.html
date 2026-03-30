@@ -1,0 +1,209 @@
+<h2>Menu de SKILL em Batalha</h2>
+<p class="subtitle">O que acontece quando o jogador clica em ✦ SKILL durante o combate?</p>
+
+<style>
+  .bm {
+    background: #0f0f1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: monospace;
+    color: #e0e0e0;
+  }
+  .scene {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #2d1b0e 100%);
+    position: relative;
+    height: 130px;
+    overflow: hidden;
+  }
+  .monster-hp {
+    position: absolute; top: 8px; left: 10px;
+    background: #0d0d20cc; border: 1px solid #ef444466;
+    border-radius: 5px; padding: 4px 8px; min-width: 100px;
+  }
+  .mname { font-size: 9px; font-weight: bold; color: #fca5a5; margin-bottom: 2px; }
+  .hp-row { display: flex; align-items: center; gap: 3px; }
+  .hp-lbl { font-size: 7px; color: #aaa; }
+  .hp-bar { flex: 1; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+  .hp-r { height: 100%; background: #ef4444; border-radius: 2px; }
+  .hp-g { height: 100%; background: #22c55e; border-radius: 2px; }
+  .hp-y { height: 100%; background: #eab308; border-radius: 2px; }
+  .monster-sprite {
+    position: absolute; top: 6px; right: 10px;
+    width: 60px; height: 60px;
+    background: #ff000008; border: 1px dashed #ef444466;
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #ef4444;
+  }
+  .player-sprite {
+    position: absolute; bottom: 8px; left: 16px;
+    width: 50px; height: 50px;
+    background: #0000ff08; border: 1px dashed #3b82f666;
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #3b82f6;
+  }
+  .player-hp {
+    position: absolute; bottom: 8px; right: 10px;
+    background: #0d0d20cc; border: 1px solid #3b82f666;
+    border-radius: 5px; padding: 4px 8px; min-width: 100px;
+  }
+  .pname { font-size: 9px; font-weight: bold; color: #93c5fd; margin-bottom: 2px; }
+
+  .textbox {
+    background: #0a0a18; border-top: 2px solid #2a2a40;
+    padding: 7px 12px; font-size: 10px; color: #e8e8e8; line-height: 1.5;
+  }
+  .cursor {
+    display: inline-block; width: 5px; height: 10px;
+    background: #fff; vertical-align: middle; margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Menu base */
+  .menu { background: #06060f; border-top: 1px solid #1e1e3a; }
+  .menu-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 5px; }
+  .mbtn {
+    border-radius: 4px; padding: 7px 4px;
+    text-align: center; font-size: 9px; font-weight: bold;
+  }
+  .atk { background: #12122a; border: 1px solid #ef4444; color: #fca5a5; }
+  .skl { background: #1e1230; border: 2px solid #a78bfa; color: #c4b5fd; } /* highlighted */
+  .itm { background: #12122a; border: 1px solid #34d399; color: #86efac; opacity:.5; }
+  .fly { background: #12122a; border: 1px solid #64748b; color: #94a3b8; opacity:.5; }
+
+  /* Option A: textbox list */
+  .skill-list-in-text {
+    background: #0a0a18; border-top: 2px solid #a78bfa33;
+    padding: 5px 10px;
+  }
+  .skill-line {
+    font-size: 10px; padding: 4px 0;
+    border-bottom: 1px solid #1a1a2e; color: #c4b5fd;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .skill-line:last-child { border-bottom: none; }
+  .skill-line.active { color: #fff; }
+  .skill-line .sp-cost { font-size: 8px; color: #888; }
+  .skill-line .arrow { color: #a78bfa; }
+
+  /* Option B: replace menu grid */
+  .skill-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 5px;
+  }
+  .skill-btn {
+    background: #1a0d30; border: 1px solid #a78bfa55;
+    border-radius: 4px; padding: 6px 4px;
+    font-size: 9px; color: #c4b5fd; text-align: center;
+  }
+  .skill-btn.disabled { opacity: .35; border-color: #333; color: #666; }
+  .back-btn {
+    grid-column: span 2;
+    background: #12122a; border: 1px solid #555;
+    border-radius: 4px; padding: 5px;
+    font-size: 9px; color: #888; text-align: center;
+  }
+
+  /* Option C: same as B but with SP filter badge */
+  .skill-btn-c {
+    background: #1a0d30; border: 1px solid #a78bfa55;
+    border-radius: 4px; padding: 5px 4px;
+    font-size: 9px; color: #c4b5fd; text-align: center;
+  }
+  .sp-badge { font-size: 7px; color: #888; display: block; margin-top: 2px; }
+  .usable { border-color: #a78bfa; }
+  .no-sp { opacity: .3; border-color: #333; color: #555; }
+</style>
+
+<div class="cards">
+
+  <!-- OPTION A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:92%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+        </div>
+        <!-- Textbox vira lista -->
+        <div class="skill-list-in-text">
+          <div class="skill-line active"><span>▶ Bash Lv.1</span><span class="sp-cost">5 SP</span></div>
+          <div class="skill-line"><span>&nbsp;&nbsp;Increase HP Recovery Lv.1</span><span class="sp-cost">3 SP</span></div>
+        </div>
+        <div class="textbox" style="font-size:9px;color:#888;padding:5px 12px">
+          Escolha uma skill. [↩ para cancelar]<span class="cursor"></span>
+        </div>
+        <div class="menu">
+          <div class="menu-2x2">
+            <div class="mbtn atk" style="opacity:.4">⚔ ATACAR</div>
+            <div class="mbtn skl">✦ SKILL</div>
+            <div class="mbtn itm" style="opacity:.4">🎒 ITEM</div>
+            <div class="mbtn fly" style="opacity:.4">↩ FUGIR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Lista na textbox</h3>
+      <p>A textbox se transforma em lista de skills. Menu 2×2 fica visível mas bloqueado. Instruções embaixo. Mais próximo do Pokémon clássico.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:92%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+        </div>
+        <div class="textbox">Escolha uma skill:<span class="cursor"></span></div>
+        <!-- Menu substituído por grade de skills -->
+        <div class="menu">
+          <div class="skill-grid">
+            <div class="skill-btn">✦ Bash Lv.1<br><span style="font-size:7px;color:#888">5 SP</span></div>
+            <div class="skill-btn">✦ HP Recovery Lv.1<br><span style="font-size:7px;color:#888">3 SP</span></div>
+            <div class="skill-btn disabled">✦ Sword Mastery<br><span style="font-size:7px;color:#555">passiva</span></div>
+            <div class="back-btn">← VOLTAR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Substitui o menu 2×2</h3>
+      <p>Os 4 botões somem e aparecem os botões de skill + VOLTAR. Skills passivas ou sem SP ficam desabilitadas mas visíveis.</p>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="bm">
+        <div class="scene">
+          <div class="monster-hp"><div class="mname">Poring Lv5</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-r" style="width:47%"></div></div></div></div>
+          <div class="monster-sprite">GIF</div>
+          <div class="player-sprite">CHAR</div>
+          <div class="player-hp"><div class="pname">Novice Lv3</div><div class="hp-row"><span class="hp-lbl">HP</span><div class="hp-bar"><div class="hp-g" style="width:92%"></div></div></div><div class="hp-row" style="margin-top:2px"><span class="hp-lbl">SP</span><div class="hp-bar"><div class="hp-y" style="width:60%"></div></div></div></div>
+        </div>
+        <div class="textbox">Escolha uma skill usável:<span class="cursor"></span></div>
+        <div class="menu">
+          <div class="skill-grid">
+            <div class="skill-btn-c usable">✦ Bash Lv.1<span class="sp-badge">5 SP ✓</span></div>
+            <div class="skill-btn-c usable">✦ HP Recovery<span class="sp-badge">3 SP ✓</span></div>
+            <div class="skill-btn-c no-sp">✦ Magnum Break<span class="sp-badge">sem SP</span></div>
+            <div class="back-btn" style="grid-column:span 2">← VOLTAR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Só skills usáveis (filtrado por SP)</h3>
+      <p>Igual ao B, mas skills sem SP suficiente ficam acinzentadas com label "sem SP". Só aparecem skills com level > 0. Mais limpo, menos confuso.</p>
+    </div>
+  </div>
+
+</div>

@@ -30,7 +30,13 @@
       "Bash(timeout 20 npx next dev)",
       "Read(//c/Users/silve/IdeaProjects/ragnarok-simulator//**)",
       "Read(//c/Users/silve/IdeaProjects//**)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(bash \"C:/Users/silve/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/brainstorming/scripts/start-server.sh\" --project-dir \"C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front\")",
+      "Bash(git:*)",
+      "Bash(node -e \":*)",
+      "Bash(find /c/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/lib -name *.ts -o -name *.tsx)",
+      "WebSearch",
+      "WebFetch(domain:www.divine-pride.net)"
     ]
   }
 }

@@ -7,32 +7,14 @@ import { useGame } from '@/lib/game-context'
 import { playerApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { toast } from 'sonner'
 import { ArrowLeft, Sparkles } from 'lucide-react'
-
-const JOB_CLASSES = [
-  'NOVICE',
-  'SWORDSMAN',
-  'MAGE',
-  'ARCHER',
-  'THIEF',
-  'MERCHANT',
-  'ACOLYTE',
-] as const
 
 export default function CreateCharacterPage() {
   const router = useRouter()
   const { setPlayerId } = useGame()
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState('')
-  const [jobClass, setJobClass] = useState<string>('NOVICE')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,7 +35,7 @@ export default function CreateCharacterPage() {
 
     setIsLoading(true)
     try {
-      const player = await playerApi.create(trimmed, jobClass)
+      const player = await playerApi.create(trimmed, 'NOVICE')
       setPlayerId(player.id)
       toast.success(`${player.name} criado com sucesso!`)
       router.push('/game')
@@ -104,29 +86,6 @@ export default function CreateCharacterPage() {
               <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground mt-1">
                 {name.length}/24 caracteres (mín. 3)
               </p>
-            </div>
-
-            {/* Job Class */}
-            <div>
-              <label className="font-[family-name:var(--font-pixel)] text-xs text-foreground mb-2 block">
-                CLASSE
-              </label>
-              <Select value={jobClass} onValueChange={setJobClass} disabled={isLoading}>
-                <SelectTrigger className="font-[family-name:var(--font-pixel-body)] text-xl h-12">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {JOB_CLASSES.map((cls) => (
-                    <SelectItem
-                      key={cls}
-                      value={cls}
-                      className="font-[family-name:var(--font-pixel-body)] text-lg"
-                    >
-                      {cls}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="bg-muted/30 p-4 border border-border">
