@@ -11,13 +11,15 @@ The project simulates the core mechanics of classic Ragnarok Online:
 - Account registration and JWT authentication
 - Character creation (NOVICE only — class progression via in-game advancement)
 - Character selection filtered by authenticated account
-- Map exploration with random monster encounters
+- Map exploration with minimap image and random monster encounters
+- **Pokémon-style battle screen** — monster sprite, HP bars, 2×2 action menu (Attack / Skill / Item / Flee)
 - Multi-round turn-based combat with real-time HP tracking
+- Victory overlay with reward parser and death overlay with animated feedback
 - Stat distribution (STR / AGI / VIT / INT / DEX / LUK)
-- Skill system — learn and use skills (with monster targeting in combat)
-- Inventory with consumable use and equipment toggle (equip/unequip)
+- Skill system — paged 2×2 skill submenu, `targetable` flag for offensive vs buff skills
+- Inventory with consumable use in combat and equipment toggle (equip/unequip)
 - Class advancement (1st → 2nd class)
-- Death overlay with resurrection
+- Resurrection with automatic map state refresh
 - Battle log tab
 - Anti-fraud system integration (captcha, session drop, block detection)
 
@@ -88,14 +90,21 @@ ragnarok-front/
 │
 ├── components/
 │   ├── game/
-│   │   ├── player-hud.tsx       # HP / SP / Zenny sidebar
-│   │   ├── map-panel.tsx        # Map, walk, encounters, portals
-│   │   ├── battle-panel.tsx     # Battle log (LOG tab)
-│   │   ├── skill-panel.tsx      # Learn and use skills
-│   │   ├── inventory-panel.tsx  # Items — use consumables, equip gear
-│   │   ├── status-panel.tsx     # Stats display and point distribution
+│   │   ├── player-hud.tsx          # HP / SP / Zenny sidebar
+│   │   ├── map-panel.tsx           # Map minimap, walk, portals — delegates to BattleHud during encounter
+│   │   ├── map-sprite.tsx          # Map minimap image (ratemyserver CDN, multi-CDN fallback)
+│   │   ├── battle-hud.tsx          # Pokémon-style battle screen (scene + textbox + menu)
+│   │   ├── battle-menu.tsx         # 2×2 action menu (Attack / Skill / Item / Flee)
+│   │   ├── battle-skill-menu.tsx   # Paged 2×2 skill submenu
+│   │   ├── battle-item-overlay.tsx # Consumables overlay during combat
+│   │   ├── battle-victory-overlay.tsx  # Victory screen with reward parser
+│   │   ├── monster-sprite.tsx      # Monster GIF (ratemyserver CDN, icon fallback)
+│   │   ├── battle-panel.tsx        # Battle log (LOG tab)
+│   │   ├── skill-panel.tsx         # Learn and use skills
+│   │   ├── inventory-panel.tsx     # Items — use consumables, equip gear
+│   │   ├── status-panel.tsx        # Stats display and point distribution
 │   │   └── class-change-panel.tsx  # Class advancement
-│   └── ui/                  # shadcn/ui components
+│   └── ui/                         # shadcn/ui components
 │
 ├── lib/
 │   ├── api.ts               # HTTP calls to backend, organized by namespace
@@ -140,13 +149,20 @@ All responses are typed via `lib/types.ts`. The module includes automatic anti-f
 ### Combat Flow
 
 ```
-walk()  →  encounterOccurred: true  →  setCurrentEncounter({ monsterHpInitial, monsterHpCurrent })
-attack()  →  { message, monsterHpRemaining }
-           ├── message includes 'VITÓRIA'  →  clearEncounter()
-           └── otherwise               →  update monsterHpCurrent, keep encounter active
+walk()  →  encounterOccurred: true  →  setCurrentEncounter(...)
+  └── MapPanel renders BattleHud (Pokémon-style)
+
+BattleHud:
+  ├── Attack  →  battleApi.attack()  →  { message, monsterHpRemaining }
+  │     ├── 'VITÓRIA'  →  BattleVictoryOverlay  →  clearEncounter() + refreshMapInfo()
+  │     ├── 'FATAL'    →  dying animation (1.5s)  →  clearEncounter() + refreshPlayer() + refreshMapInfo()
+  │     └── otherwise  →  update monsterHpCurrent, next round
+  ├── Skill   →  BattleSkillMenu (2×2 paged)  →  skillApi.use(aegisName, monsterId?)
+  ├── Item    →  BattleItemOverlay  →  inventoryApi.use()
+  └── Flee    →  clearEncounter()
 ```
 
-Combat is multi-round: the encounter persists between attacks until the monster dies (`VITÓRIA` in message) or the player dies (`FATAL` in message).
+`refreshMapInfo()` is called on all battle endings. Without it, after death the player teleports to their save point but the portal list stays stale — clicking any portal triggers a 400 from the backend.
 
 ### Anti-Fraud System
 
@@ -214,16 +230,20 @@ This frontend connects to `ragnarok-core` (Spring Boot, port 8080). Key contract
 | Login / Registration | Connected to real backend (JWT) |
 | Character creation | Functional — always creates as NOVICE |
 | Character selection | Functional — filtered by authenticated account |
-| Map / Walk | Functional |
-| Multi-round combat | Functional — HP tracks across rounds |
+| Map / Walk | Functional — minimap image via ratemyserver CDN |
+| Multi-round combat | Functional — Pokémon-style BattleHud |
+| Battle Victory overlay | Functional — reward parser |
+| Battle Death overlay | Functional — 1.5s animation + resurrection |
+| Skill use in combat | Functional — `targetable` flag controls monsterId routing |
+| Items in combat | Functional — BattleItemOverlay |
 | Battle log | Functional — LOG tab |
-| Skills | Functional — combat targeting included |
+| Skills (out of combat) | Functional — learn and use |
 | Inventory — use items | Functional |
 | Inventory — equip/unequip | Functional |
 | Stat distribution | Functional |
-| Resurrect | Functional |
 | Class advancement | Functional |
 | Demo mode | Available via "ENTER DEMO MODE" on login page |
+| Map refresh after battle | Fixed — stale portal list no longer causes 400s after death |
 
 ---
 

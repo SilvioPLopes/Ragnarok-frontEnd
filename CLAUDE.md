@@ -44,12 +44,15 @@ npx tsc --noEmit      # type check without build
 |---|---|
 | `playerApi` | `list`, `get`, `create`, `distributeStats`, `resurrect`, `listAvailableClasses`, `changeClass` |
 | `battleApi` | `attack` |
-| `skillApi` | `list`, `learn`, `use` (optional `monsterId` for combat targeting) |
+| `skillApi` | `list`, `learn`, `use` — body always `{}` or `{ monsterId }` (never `undefined`) |
 | `inventoryApi` | `list`, `use`, `equip` (toggle — same endpoint equips and unequips) |
 | `mapApi` | `get`, `walk`, `travel` |
 | `authApi` | `login`, `register` |
 
-`apiFetch` automatically injects `Authorization: Bearer <token>` (reads `auth_token` from localStorage) and `X-Action-Timestamp` on every request.
+`apiFetch` automatically injects `Authorization: Bearer <token>` (reads `auth_token` from localStorage) and `X-Action-Timestamp` on every request. Logs every request (`→`) and response (`✓`/`✗`) to the console including request body and error body.
+
+### `skillApi.use` — targeting rule
+Only pass `monsterId` when `skill.targetable === true`. Self/buff skills must omit it or the backend returns 400. The backend needs to send `targetable: boolean` in the `GET /skills` response — field is optional in `SkillRow` for now.
 
 ## Naming conventions
 
@@ -62,6 +65,7 @@ npx tsc --noEmit      # type check without build
 - `MapInfo` fields: `currentMap` and `availablePortals` (not `mapName`/`portals`)
 - `BattleResult` has `monsterHpRemaining` — updated after each attack round
 - `Encounter` has both `monsterHpInitial` (set once) and `monsterHpCurrent` (updated each round)
+- `SkillRow.targetable` — `true` = offensive skill that needs `monsterId` in combat; omit `monsterId` for self/buff skills
 
 ## Auth
 
@@ -80,7 +84,7 @@ The login page has an "ENTER DEMO MODE" button that sets `localStorage.setItem('
 
 | Tab value | Component | Status |
 |---|---|---|
-| `map` | `MapPanel` | Walk, encounter, multi-round combat, portals |
+| `map` | `MapPanel` + `BattleHud` | Walk, portals, map minimap — delegates to BattleHud during encounter |
 | `skills` | `SkillPanel` | Learn skills, use skills (with monster targeting in combat) |
 | `inventory` | `InventoryPanel` | Use consumables, equip/unequip weapons and armor |
 | `status` | `StatusPanel` | View and distribute stat points |
@@ -91,11 +95,29 @@ The login page has an "ENTER DEMO MODE" button that sets `localStorage.setItem('
 
 ```
 walk() → encounterOccurred: true → currentEncounter = { monsterHpInitial, monsterHpCurrent }
-attack() → { message, monsterHpRemaining }
-  ├── message includes 'VITÓRIA' → clearEncounter()
-  ├── message includes 'FATAL'   → clearEncounter() (player died)
-  └── otherwise                  → monsterHpCurrent = monsterHpRemaining (next round)
+  └── MapPanel delegates to BattleHud (Pokémon-style layout)
+
+BattleHud phases:
+  'fighting' → BattleMenu 2×2 (Atacar / Skill / Item / Fugir)
+    ├── Atacar  → attack() → { message, monsterHpRemaining }
+    │     ├── 'VITÓRIA' → phase='victory' → BattleVictoryOverlay → clearEncounter() + refreshMapInfo()
+    │     ├── 'FATAL'   → phase='dying'   → 1500ms → clearEncounter() + refreshPlayer() + refreshMapInfo()
+    │     └── otherwise → update monsterHpCurrent, stay in 'fighting'
+    ├── Skill   → BattleSkillMenu (paginado, 2×2) → skillApi.use(aegisName, targetId?)
+    ├── Item    → BattleItemOverlay → inventoryApi.use()
+    └── Fugir   → clearEncounter()
 ```
+
+> **Importante:** `refreshMapInfo()` é chamado em todos os finais de batalha (vitória, derrota, fuga). Sem isso, o `mapInfo` fica stale e portais do mapa anterior causam 400 no backend após morte.
+
+## Sprites externos (CDN)
+
+| Componente | CDN | Padrão de URL | Fallback |
+|---|---|---|---|
+| `MonsterSprite` | ratemyserver.net | `file5s.ratemyserver.net/mobs/{id}.gif` | Ícone `<Swords>` |
+| `MapSprite` | ratemyserver.net | `file5s.ratemyserver.net/maps/{mapName}.png` → `.jpg` → divine-pride | Ícone `<Map>` |
+
+`MapSprite` tenta múltiplos CDNs em sequência via `attempt` state. Logs no console indicam qual URL foi carregada ou se todas falharam.
 
 ## Anti-fraud system
 
