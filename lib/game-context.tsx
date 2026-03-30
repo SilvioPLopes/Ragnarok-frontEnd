@@ -12,7 +12,7 @@ import {
   configureFraudHandler
 } from './api'
 import type {
-  PlayerResponse, SkillRow, InventoryItem, MapInfo, Encounter
+  PlayerResponse, SkillRow, InventoryItem, MapInfo, Encounter, BattleResult
 } from './types'
 
 const MAX_BATTLE_LOG = 100
@@ -26,7 +26,8 @@ interface GameContextType {
   clearEncounter: () => void
   walkMap: () => Promise<void>
   travelTo: (destination: string) => Promise<void>
-  attackMonster: (monsterId: number) => Promise<void>
+  attackMonster: (monsterId: number) => Promise<BattleResult | null>
+  flee: () => void
   battleLog: string[]
   clearBattleLog: () => void
   mapInfo: MapInfo | null
@@ -162,27 +163,45 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [playerId, clearBattleLog, clearEncounter, refreshPlayer])
 
-  const attackMonster = useCallback(async (monsterId: number) => {
-    if (!playerId) return
+  const attackMonster = useCallback(async (monsterId: number): Promise<BattleResult | null> => {
+    if (!playerId) return null
     setIsLoading(true)
     try {
       const result = await battleApi.attack(playerId, monsterId)
       appendLog(result.message)
-      await refreshPlayer()
-      if (result.message.includes('VITÓRIA')) {
-        clearEncounter()
-      } else if (result.monsterHpRemaining != null) {
+
+      const isFatal = result.message.includes('FATAL')
+      const isVictory = result.message.includes('VITÓRIA')
+
+      // Update monster HP for normal rounds (BattleHud handles victory/fatal)
+      if (!isFatal && !isVictory && result.monsterHpRemaining != null) {
         setCurrentEncounter(prev =>
           prev ? { ...prev, monsterHpCurrent: result.monsterHpRemaining! } : null
         )
       }
+
+      // For fatal: BattleHud handles the 1500ms delay, clearEncounter, and refreshPlayer
+      if (!isFatal) {
+        await refreshPlayer()
+      }
+
+      return result
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao atacar')
       clearEncounter()
+      return null
     } finally {
       setIsLoading(false)
     }
   }, [playerId, appendLog, refreshPlayer, clearEncounter])
+
+  const flee = useCallback(() => {
+    clearEncounter()
+    setBattleLog(prev => {
+      const next = [...prev, 'Você conseguiu escapar!']
+      return next.length > MAX_BATTLE_LOG ? next.slice(-MAX_BATTLE_LOG) : next
+    })
+  }, [clearEncounter])
 
   const refreshMapInfo = useCallback(async () => {
     if (!playerId) return
@@ -199,7 +218,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       playerId, setPlayerId,
       player, refreshPlayer,
       currentEncounter, clearEncounter,
-      walkMap, travelTo, attackMonster,
+      walkMap, travelTo, attackMonster, flee,
       battleLog, clearBattleLog,
       mapInfo, refreshMapInfo,
       inventory, refreshInventory,
