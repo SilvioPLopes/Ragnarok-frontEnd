@@ -15,7 +15,7 @@ function parseVictoryMessage(message: string): {
   const hasLevelUp = /level\s*up|subiu\s*de\s*n[íi]vel/i.test(message)
 
   const lines = message
-    .split(/[.!]\s+/)
+    .split(/(?<=[.!])\s+/)
     .filter(Boolean)
     .map((segment) => {
       if (/vitória|venceu/i.test(segment))
