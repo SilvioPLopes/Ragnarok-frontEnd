@@ -3,45 +3,49 @@
 
 import { useEffect, useRef } from 'react'
 import { useGame } from '@/lib/game-context'
-import { ScrollArea } from '@/components/ui/scroll-area'
+
+function classifyLogEntry(msg: string): 'dmg' | 'exp' | 'info' {
+  const lower = msg.toLowerCase()
+  // Colorização de apresentação apenas — não é regra de negócio
+  if (lower.includes('fatal') || lower.includes('dano') || lower.includes('atacou') || lower.includes('derrotado')) return 'dmg'
+  if (lower.includes('exp') || lower.includes('vitória') || lower.includes('escapou')) return 'exp'
+  return 'info'
+}
 
 export function BattlePanel() {
   const { battleLog } = useGame()
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to newest message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [battleLog])
 
-  if (battleLog.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8 text-center">
-        <p className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">
-          Ande pelo mapa para encontrar monstros.
-        </p>
-      </div>
-    )
-  }
+  if (battleLog.length === 0) return (
+    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center' }}>
+      <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '14px', color: 'var(--ro-text-muted)' }}>
+        Ande pelo mapa para encontrar monstros.
+      </span>
+    </div>
+  )
 
   return (
-    <div className="flex-1 flex flex-col p-4">
-      <p className="font-[family-name:var(--font-pixel)] text-xs text-foreground mb-3">
-        LOG DE BATALHA
-      </p>
-      <ScrollArea className="flex-1 game-panel p-3">
-        <div className="space-y-1">
-          {battleLog.map((msg, i) => (
-            <p
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px', overflowY: 'auto' }}>
+      <div className="ro-section-label">Log de Batalha</div>
+      <div className="ro-log-box" style={{ flex: 1 }}>
+        {battleLog.map((msg, i) => {
+          const type = classifyLogEntry(msg)
+          return (
+            <div
               key={i}
-              className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground border-b border-border/30 pb-1 last:border-0"
+              className={`ro-log-${type} font-[family-name:var(--font-pixel-body)]`}
+              style={{ fontSize: '13px', padding: '3px 0', borderBottom: '1px solid #EAF0F8' }}
             >
               {msg}
-            </p>
-          ))}
-          <div ref={bottomRef} />
-        </div>
-      </ScrollArea>
+            </div>
+          )
+        })}
+        <div ref={bottomRef} />
+      </div>
     </div>
   )
 }
