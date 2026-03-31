@@ -70,6 +70,8 @@
   --ro-text:          #1A2A3A;
   --ro-text-muted:    #667788;
   --ro-text-accent:   #1A3060;
+  --ro-accent-rgb:    157, 178, 219;
+  --ro-border-dark:   #8AA4CC;
   --ro-zenny:         #7A5800;
 
   /* Sidebar */
@@ -123,6 +125,7 @@
   --sidebar-accent-foreground: oklch(0.95 0.01 80);
   --sidebar-border: oklch(0.35 0.04 260);
   --sidebar-ring: oklch(0.8 0.15 85);
+  /* --ro-* tokens intentionally not overridden here; RO panels are always light-theme */
 }
 
 @theme inline {
@@ -297,7 +300,7 @@
 
   .ro-panel-header {
     background: linear-gradient(180deg, var(--ro-header-light) 0%, var(--ro-header-dark) 100%);
-    border-bottom: 1px solid #8AA4CC;
+    border-bottom: 1px solid var(--ro-border-dark);
     padding: 5px 10px;
     font-size: 10px;
     font-weight: 600;
@@ -319,7 +322,7 @@
     cursor: pointer;
   }
   .ro-btn-primary:hover {
-    background: linear-gradient(180deg, #dceefa 0%, #8aaac8 100%);
+    filter: brightness(1.07);
   }
   .ro-btn-primary:disabled {
     opacity: 0.55;
@@ -335,7 +338,7 @@
     cursor: pointer;
   }
   .ro-btn-ghost:hover {
-    background: rgba(157,178,219,0.15);
+    background: rgba(var(--ro-accent-rgb),0.15);
   }
   .ro-btn-ghost:disabled {
     opacity: 0.55;
@@ -353,11 +356,11 @@
     align-items: center;
     gap: 5px;
     font-size: 10px;
-    background: rgba(157,178,219,0.12);
+    background: rgba(var(--ro-accent-rgb),0.12);
     transition: background 0.1s;
   }
   .ro-list-item:hover {
-    background: rgba(157,178,219,0.22);
+    background: rgba(var(--ro-accent-rgb),0.22);
   }
   .ro-list-item.selected {
     background: linear-gradient(180deg, var(--ro-header-light) 0%, var(--ro-selection) 100%);
@@ -384,7 +387,7 @@
   .ro-tab-bar {
     display: flex;
     background: linear-gradient(180deg, var(--ro-header-light) 0%, var(--ro-header-dark) 100%);
-    border-top: 1px solid #8AA4CC;
+    border-top: 1px solid var(--ro-border-dark);
     padding: 4px 5px;
     gap: 3px;
     flex-shrink: 0;
@@ -431,7 +434,7 @@
     font-size: 10px;
     border-radius: 5px;
   }
-  .ro-stat-row:nth-child(even) { background: rgba(157,178,219,0.13); }
+  .ro-stat-row:nth-child(even) { background: rgba(var(--ro-accent-rgb),0.13); }
 
   /* ── RO Badge ── */
   .ro-badge {
@@ -440,7 +443,7 @@
     font-weight: 600;
     padding: 1px 5px;
     border-radius: 4px;
-    background: rgba(157,178,219,0.25);
+    background: rgba(var(--ro-accent-rgb),0.25);
     color: #3A5A7A;
     border: 1px solid #B0C8E0;
   }
