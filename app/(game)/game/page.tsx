@@ -1,7 +1,7 @@
 // app/(game)/game/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGame } from '@/lib/game-context'
 import { playerApi } from '@/lib/api'
@@ -19,13 +19,13 @@ import { toast } from 'sonner'
 
 type TabValue = 'map' | 'skills' | 'inventory' | 'status' | 'class' | 'log'
 
-const TABS: { value: TabValue; label: string; icon: React.ReactNode }[] = [
-  { value: 'map',       label: 'MAPA',   icon: <Map className="w-4 h-4" /> },
-  { value: 'skills',    label: 'SKILLS', icon: <Sparkles className="w-4 h-4" /> },
-  { value: 'inventory', label: 'ITENS',  icon: <Backpack className="w-4 h-4" /> },
-  { value: 'status',    label: 'STATUS', icon: <User className="w-4 h-4" /> },
-  { value: 'class',     label: 'CLASSE', icon: <ArrowUpCircle className="w-4 h-4" /> },
-  { value: 'log',       label: 'LOG',    icon: <ScrollText className="w-4 h-4" /> },
+const TABS: { value: TabValue; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
+  { value: 'map',       label: 'MAPA',   Icon: Map },
+  { value: 'skills',    label: 'SKILLS', Icon: Sparkles },
+  { value: 'inventory', label: 'ITENS',  Icon: Backpack },
+  { value: 'status',    label: 'STATUS', Icon: User },
+  { value: 'class',     label: 'CLASSE', Icon: ArrowUpCircle },
+  { value: 'log',       label: 'LOG',    Icon: ScrollText },
 ]
 
 export default function GamePage() {
@@ -33,6 +33,20 @@ export default function GamePage() {
   const { player, playerId, refreshPlayer, refreshInventory, refreshSkills, refreshMapInfo } = useGame()
   const [activeTab, setActiveTab] = useState<TabValue>('map')
   const [isResurrecting, setIsResurrecting] = useState(false)
+
+  const handleResurrect = useCallback(async () => {
+    if (!playerId) return
+    setIsResurrecting(true)
+    try {
+      await playerApi.resurrect(playerId)
+      await refreshPlayer()
+      await refreshMapInfo()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao ressuscitar')
+    } finally {
+      setIsResurrecting(false)
+    }
+  }, [playerId, refreshPlayer, refreshMapInfo])
 
   useEffect(() => {
     if (!playerId) { router.push('/'); return }
@@ -60,19 +74,7 @@ export default function GamePage() {
         <button
           className="ro-btn-primary px-8 py-3 font-[family-name:var(--font-pixel)] text-sm"
           disabled={isResurrecting}
-          onClick={async () => {
-            if (!playerId) return
-            setIsResurrecting(true)
-            try {
-              await playerApi.resurrect(playerId)
-              await refreshPlayer()
-              await refreshMapInfo()
-            } catch (err) {
-              toast.error(err instanceof Error ? err.message : 'Erro ao ressuscitar')
-            } finally {
-              setIsResurrecting(false)
-            }
-          }}
+          onClick={handleResurrect}
         >
           {isResurrecting ? 'RESSUSCITANDO...' : 'RESSUSCITAR'}
         </button>
@@ -80,16 +82,16 @@ export default function GamePage() {
     )
   }
 
-  const renderTab = () => {
-    switch (activeTab) {
-      case 'map':       return <MapPanel />
-      case 'skills':    return <SkillPanel />
-      case 'inventory': return <InventoryPanel />
-      case 'status':    return <StatusPanel />
-      case 'class':     return <ClassChangePanel />
-      case 'log':       return <BattlePanel />
-    }
+  const TAB_COMPONENTS: Record<TabValue, React.ReactNode> = {
+    map:       <MapPanel />,
+    skills:    <SkillPanel />,
+    inventory: <InventoryPanel />,
+    status:    <StatusPanel />,
+    class:     <ClassChangePanel />,
+    log:       <BattlePanel />,
   }
+
+  const ActiveIcon = TABS.find(t => t.value === activeTab)?.Icon
 
   return (
     <main className="min-h-screen flex flex-col" style={{ background: 'var(--ro-page-bg)' }}>
@@ -122,13 +124,13 @@ export default function GamePage() {
         {/* Main panel */}
         <div className="ro-panel flex-1 flex flex-col min-h-0" style={{ borderRadius: '10px' }}>
           <div className="ro-panel-header">
-            {TABS.find(t => t.value === activeTab)?.icon}
+            {ActiveIcon && <ActiveIcon className="w-4 h-4" />}
             <span>{TABS.find(t => t.value === activeTab)?.label}</span>
           </div>
 
           {/* Content area */}
           <div className="flex-1 min-h-0 overflow-y-auto" style={{ background: 'var(--ro-body-bg)' }}>
-            {renderTab()}
+            {TAB_COMPONENTS[activeTab]}
           </div>
 
           {/* Tab bar */}
@@ -139,7 +141,7 @@ export default function GamePage() {
                 className={`ro-tab ${activeTab === tab.value ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab.value)}
               >
-                {tab.icon}
+                <tab.Icon className="w-4 h-4" />
                 <span className="font-[family-name:var(--font-pixel)]" style={{ fontSize: '7px' }}>
                   {tab.label}
                 </span>
