@@ -53,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className={`${pressStart2P.variable} ${vt323.variable} font-sans antialiased min-h-screen`}>
+      <body className={`${pressStart2P.variable} ${vt323.variable} font-sans antialiased min-h-screen`} style={{ background: 'var(--ro-page-bg)' }}>
         <AuthProvider>
           {children}
         </AuthProvider>
