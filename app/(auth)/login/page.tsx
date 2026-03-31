@@ -1,13 +1,11 @@
+// app/(auth)/login/page.tsx
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
-import { Sword, Shield, Sparkles } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -18,11 +16,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!username || !password) {
-      toast.error('Preencha todos os campos')
-      return
-    }
-
+    if (!username || !password) { toast.error('Preencha todos os campos'); return }
     setIsLoading(true)
     try {
       await login(username, password)
@@ -30,125 +24,107 @@ export default function LoginPage() {
       router.push('/select-character')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao fazer login')
-    } finally {
-      setIsLoading(false)
-    }
+    } finally { setIsLoading(false) }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background via-background to-secondary/20">
-      {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 opacity-10">
-          <Sword className="w-32 h-32 text-primary" />
-        </div>
-        <div className="absolute bottom-20 right-10 opacity-10">
-          <Shield className="w-40 h-40 text-accent" />
-        </div>
-        <div className="absolute top-1/3 right-1/4 opacity-10">
-          <Sparkles className="w-24 h-24 text-primary" />
-        </div>
-      </div>
+    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'var(--ro-page-bg)' }}>
+      <div style={{ width: '100%', maxWidth: '380px' }}>
 
-      <div className="w-full max-w-md">
-        {/* Logo/Title */}
-        <div className="text-center mb-8">
-          <h1 className="font-[family-name:var(--font-pixel)] text-2xl md:text-3xl text-primary mb-2 tracking-wider">
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <h1 className="font-[family-name:var(--font-pixel)]" style={{ fontSize: '22px', color: 'var(--ro-text-accent)', marginBottom: '4px', letterSpacing: '2px' }}>
             RAGNAROK
           </h1>
-          <p className="font-[family-name:var(--font-pixel-body)] text-xl text-muted-foreground">
+          <p className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '16px', color: 'var(--ro-text-muted)' }}>
             Emulator
           </p>
         </div>
 
-        {/* Login Card */}
-        <div className="game-panel p-6 md:p-8">
-          <h2 className="font-[family-name:var(--font-pixel)] text-sm text-center text-foreground mb-6">
+        <div className="ro-panel">
+          <div className="ro-panel-header" style={{ justifyContent: 'center', fontSize: '11px', letterSpacing: '1px' }}>
             LOGIN
-          </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <label className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">
-                Usuario
-              </label>
-              <Input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="font-[family-name:var(--font-pixel-body)] text-lg h-12 bg-input border-2 border-border focus:border-primary"
-                placeholder="Digite seu usuario..."
+          </div>
+          <div style={{ padding: '20px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--ro-text-muted)', marginBottom: '5px' }}>
+                  Usuário
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
+                  placeholder="Digite seu usuário..."
+                  className="font-[family-name:var(--font-pixel-body)]"
+                  style={{
+                    width: '100%', padding: '8px 10px', fontSize: '14px',
+                    border: '1px solid var(--ro-border)', borderRadius: '7px',
+                    background: '#fff', color: 'var(--ro-text)', outline: 'none',
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--ro-text-muted)', marginBottom: '5px' }}>
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  placeholder="Digite sua senha..."
+                  className="font-[family-name:var(--font-pixel-body)]"
+                  style={{
+                    width: '100%', padding: '8px 10px', fontSize: '14px',
+                    border: '1px solid var(--ro-border)', borderRadius: '7px',
+                    background: '#fff', color: 'var(--ro-text)', outline: 'none',
+                  }}
+                />
+              </div>
+              <button
+                type="submit"
                 disabled={isLoading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">
-                Senha
-              </label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="font-[family-name:var(--font-pixel-body)] text-lg h-12 bg-input border-2 border-border focus:border-primary"
-                placeholder="Digite sua senha..."
-                disabled={isLoading}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-12 pixel-button font-[family-name:var(--font-pixel)] text-xs tracking-wide"
-            >
-              {isLoading ? 'ENTRANDO...' : 'ENTRAR'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">
-              Nao tem conta?{' '}
-              <Link 
-                href="/register" 
-                className="text-primary hover:text-primary/80 underline underline-offset-4"
+                className="ro-btn-primary font-[family-name:var(--font-pixel)]"
+                style={{ width: '100%', padding: '10px', fontSize: '11px', letterSpacing: '1px' }}
               >
-                Registre-se
-              </Link>
-            </p>
-          </div>
+                {isLoading ? 'ENTRANDO...' : 'ENTRAR'}
+              </button>
+            </form>
 
-          {/* Demo Mode */}
-          <div className="mt-6 pt-6 border-t-2 border-border">
-            <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground text-center mb-3">
-              Backend offline? Teste o frontend:
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                localStorage.setItem('demo_mode', 'true')
-                localStorage.setItem('demo_user', JSON.stringify({ id: 1, username: 'demo', email: 'demo@test.com' }))
-                toast.success('Modo Demo ativado!')
-                router.push('/select-character')
-              }}
-              className="w-full h-10 font-[family-name:var(--font-pixel)] text-[10px] tracking-wide border-accent text-accent hover:bg-accent hover:text-accent-foreground"
-            >
-              ENTRAR EM MODO DEMO
-            </Button>
+            <div style={{ marginTop: '16px', textAlign: 'center' }}>
+              <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '13px', color: 'var(--ro-text-muted)' }}>
+                Não tem conta?{' '}
+                <Link href="/register" style={{ color: 'var(--ro-text-accent)', textDecoration: 'underline' }}>
+                  Registre-se
+                </Link>
+              </span>
+            </div>
+
+            <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--ro-border)' }}>
+              <p style={{ fontSize: '10px', color: 'var(--ro-text-muted)', textAlign: 'center', marginBottom: '8px' }}>
+                Backend offline? Teste o frontend:
+              </p>
+              <button
+                type="button"
+                className="ro-btn-ghost font-[family-name:var(--font-pixel)]"
+                style={{ width: '100%', padding: '8px', fontSize: '9px', letterSpacing: '0.5px' }}
+                onClick={() => {
+                  localStorage.setItem('demo_mode', 'true')
+                  localStorage.setItem('demo_user', JSON.stringify({ id: 1, username: 'demo', email: 'demo@test.com' }))
+                  toast.success('Modo Demo ativado!')
+                  router.push('/select-character')
+                }}
+              >
+                ENTRAR EM MODO DEMO
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="text-center mt-6 font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-          v1.0.0 - Frontend Demo
+        <p style={{ textAlign: 'center', marginTop: '14px', fontSize: '10px', color: 'var(--ro-text-muted)' }}>
+          v1.0.0 — Frontend Demo
         </p>
-        
-        {/* Quick Navigation Guide */}
-        <div className="mt-4 p-3 bg-muted/30 border border-border rounded text-center">
-          <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-            Navegacao: Login → Selecao → Jogo (Mapa/Skills/Itens/Status/Classe)
-          </p>
-        </div>
       </div>
     </main>
   )
