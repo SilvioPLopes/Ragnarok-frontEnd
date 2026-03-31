@@ -39,10 +39,14 @@ export function BattleHud() {
       const result = await attackMonster(currentEncounter.monsterId)
       if (!result) return
 
-      if (result.message.includes('VITÓRIA')) {
+      // ⚠ BACKEND NEEDED: remover fallback após BattleResponseDTO expor playerDied/monsterDied
+      const isVictory = result.monsterDied ?? result.message.includes('VITÓRIA')
+      const isFatal   = result.playerDied  ?? result.message.includes('FATAL')
+
+      if (isVictory) {
         setVictoryMessage(result.message)
         setPhase('victory')
-      } else if (result.message.includes('FATAL')) {
+      } else if (isFatal) {
         setPhase('dying')
         setTimeout(async () => {
           clearEncounter()
@@ -117,7 +121,7 @@ export function BattleHud() {
   const loading = isLoading || actionLoading
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className="flex-1 flex flex-col min-h-0" style={{ background: '#1a1a2e' }}>
       {/* Battle scene — Pokémon layout */}
       <div className="relative h-44 bg-gradient-to-b from-[#1a1a2e] via-[#16213e] to-[#2d1b0e] flex-shrink-0">
 
