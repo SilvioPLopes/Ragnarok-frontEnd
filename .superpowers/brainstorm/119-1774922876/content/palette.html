@@ -1,0 +1,140 @@
+<h2>Qual paleta define melhor a identidade visual?</h2>
+<p class="subtitle">Cada opção mantém dourado como cor primária, mas muda o fundo e os painéis.</p>
+
+<style>
+.pal-demo {
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.pal-header {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.pal-panel {
+  padding: 10px;
+}
+.pal-bar-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+.pal-label { font-size:10px; font-weight:bold; width:24px; }
+.pal-bar { flex:1; height:10px; border-radius:2px; overflow:hidden; }
+.pal-fill { height:100%; }
+.pal-btn { padding: 4px 10px; font-size:10px; font-weight:bold; letter-spacing:1px; border:none; cursor:default; }
+.pal-swatches { display:flex; gap:4px; margin-top:8px; }
+.swatch { width:28px; height:28px; border-radius:3px; }
+.pal-stat-row { display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px; }
+</style>
+
+<div class="cards">
+
+  <!-- PALETA A: Atual (mais sutil) -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="pal-demo">
+        <div class="pal-header" style="background:#1a1625;color:#c9a227;border-bottom:1px solid #333">⚔ RAGNAROK — Status</div>
+        <div class="pal-panel" style="background:#1e1c2e;">
+          <div class="pal-bar-row">
+            <span class="pal-label" style="color:#e05555">HP</span>
+            <div class="pal-bar" style="background:#4a2222"><div class="pal-fill" style="width:72%;background:#c0392b"></div></div>
+            <span style="color:#aaa;font-size:10px">720/1000</span>
+          </div>
+          <div class="pal-bar-row">
+            <span class="pal-label" style="color:#5588dd">SP</span>
+            <div class="pal-bar" style="background:#1a2540"><div class="pal-fill" style="width:50%;background:#2255aa"></div></div>
+            <span style="color:#aaa;font-size:10px">50/100</span>
+          </div>
+          <div class="pal-stat-row" style="color:#c9a227;margin-top:8px"><span>STR</span><span>35</span></div>
+          <div class="pal-stat-row" style="color:#c9a227"><span>INT</span><span>12</span></div>
+          <div class="pal-btn" style="background:#c9a227;color:#1a1625;margin-top:8px;display:inline-block">ATACAR</div>
+          <div class="pal-swatches">
+            <div class="swatch" style="background:#1a1625" title="Background"></div>
+            <div class="swatch" style="background:#1e1c2e" title="Card"></div>
+            <div class="swatch" style="background:#c9a227" title="Primary/Gold"></div>
+            <div class="swatch" style="background:#c0392b" title="HP"></div>
+            <div class="swatch" style="background:#2255aa" title="SP"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Atual refinado</h3>
+      <p>Fundo azul-marinho escuro atual, ouro moderado. Muda só os tokens inconsistentes (HP vermelho correto, SP azul correto). Ajuste mínimo no globals.css.</p>
+    </div>
+  </div>
+
+  <!-- PALETA B: Marrom/tabaco clássico do RO -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="pal-demo">
+        <div class="pal-header" style="background:#2c1a0e;color:#f0c040;border-bottom:2px solid #6b3a1f;text-shadow:1px 1px 0 #000">⚔ RAGNAROK — Status</div>
+        <div class="pal-panel" style="background:#3d2510;border:2px inset #5a3520">
+          <div class="pal-bar-row">
+            <span class="pal-label" style="color:#ff5555">HP</span>
+            <div class="pal-bar" style="background:#2a0808;border:1px solid #5a1010"><div class="pal-fill" style="width:72%;background:linear-gradient(180deg,#ff6666 0%,#cc1111 50%,#991111 100%)"></div></div>
+            <span style="color:#ccc;font-size:10px">720/1000</span>
+          </div>
+          <div class="pal-bar-row">
+            <span class="pal-label" style="color:#6699ff">SP</span>
+            <div class="pal-bar" style="background:#0a0a2a;border:1px solid #1a1a5a"><div class="pal-fill" style="width:50%;background:linear-gradient(180deg,#7799ff 0%,#2244cc 50%,#112299 100%)"></div></div>
+            <span style="color:#ccc;font-size:10px">50/100</span>
+          </div>
+          <div class="pal-stat-row" style="color:#f0c040;margin-top:8px"><span>STR</span><span>35</span></div>
+          <div class="pal-stat-row" style="color:#f0c040"><span>INT</span><span>12</span></div>
+          <div class="pal-btn" style="background:linear-gradient(180deg,#f0c040 0%,#c08010 100%);color:#1a0a00;margin-top:8px;display:inline-block;box-shadow:inset -2px -2px 0 #7a4a00,inset 2px 2px 0 #fff8d0">ATACAR</div>
+          <div class="pal-swatches">
+            <div class="swatch" style="background:#2c1a0e" title="Background tabaco"></div>
+            <div class="swatch" style="background:#3d2510" title="Card marrom"></div>
+            <div class="swatch" style="background:#f0c040" title="Ouro vivo"></div>
+            <div class="swatch" style="background:#cc1111" title="HP vermelho vivo"></div>
+            <div class="swatch" style="background:#2244cc" title="SP azul cobalto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Tabaco clássico RO</h3>
+      <p>Fundo marrom-tabaco escuro (como as janelas do RO original), ouro vibrante, HP vermelho vivo com gradiente 3D, SP azul cobalto. Mais próximo do RO clássico.</p>
+    </div>
+  </div>
+
+  <!-- PALETA C: Marinho profundo + ouro âmbar -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="pal-demo">
+        <div class="pal-header" style="background:#0d1b2a;color:#d4af37;border-bottom:2px solid #1e3a5f">⚔ RAGNAROK — Status</div>
+        <div class="pal-panel" style="background:#152234;border:2px solid #1e3a5f;box-shadow:inset 0 0 0 1px #0a1520">
+          <div class="pal-bar-row">
+            <span class="pal-label" style="color:#ff4444">HP</span>
+            <div class="pal-bar" style="background:#1a0505;border:1px solid #3a0505"><div class="pal-fill" style="width:72%;background:linear-gradient(180deg,#ff5555 0%,#dd1111 50%,#991111 100%)"></div></div>
+            <span style="color:#aac;font-size:10px">720/1000</span>
+          </div>
+          <div class="pal-bar-row">
+            <span class="pal-label" style="color:#4488ff">SP</span>
+            <div class="pal-bar" style="background:#050515;border:1px solid #05053a"><div class="pal-fill" style="width:50%;background:linear-gradient(180deg,#5599ff 0%,#1133cc 50%,#0a1a88 100%)"></div></div>
+            <span style="color:#aac;font-size:10px">50/100</span>
+          </div>
+          <div class="pal-stat-row" style="color:#d4af37;margin-top:8px"><span>STR</span><span>35</span></div>
+          <div class="pal-stat-row" style="color:#d4af37"><span>INT</span><span>12</span></div>
+          <div class="pal-btn" style="background:linear-gradient(180deg,#e0c050 0%,#b08020 100%);color:#0d1b2a;margin-top:8px;display:inline-block;box-shadow:inset -2px -2px 0 #6a4a00,inset 2px 2px 0 #ffe88a">ATACAR</div>
+          <div class="pal-swatches">
+            <div class="swatch" style="background:#0d1b2a" title="Marinho profundo"></div>
+            <div class="swatch" style="background:#152234" title="Card azul-aço"></div>
+            <div class="swatch" style="background:#d4af37" title="Âmbar/ouro"></div>
+            <div class="swatch" style="background:#dd1111" title="HP vermelho"></div>
+            <div class="swatch" style="background:#1133cc" title="SP azul cobalto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Marinho profundo + âmbar</h3>
+      <p>Fundo azul-marinho bem escuro, ouro âmbar (#d4af37 — o clássico RO), painéis em azul-aço. Visual mais "noturno" que o RO clássico mas muito coeso.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">Minha recomendação: <strong>B (tabaco)</strong> para máxima fidelidade ao RO. <strong>C (marinho)</strong> se preferir algo mais elegante e moderno.</p>

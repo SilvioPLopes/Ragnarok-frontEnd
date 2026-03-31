@@ -1,0 +1,35 @@
+<h2>Qual nível de "cara de RO" você quer?</h2>
+<p class="subtitle">Isso define o escopo do rework visual. Escolha a abordagem.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Consistência — arruma o que está quebrado</h3>
+      <p>Corrige as inconsistências sem mudar a estrutura. HP bars usando tokens CSS corretos (vermelho, não emerald-500). Tipografia pixel em todos os rótulos. Botões sempre usando <code>pixel-button</code>. Cores hardcoded removidas. O BattleHud já está certo — equaliza o resto com ele.</p>
+      <p style="color:#888;font-size:0.85em;margin-top:8px">Escopo: ~1 dia. Zero risco de quebrar layout.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>RO Theme — identidade visual completa</h3>
+      <p>Além da consistência: borda dupla com bevel nos painéis (estilo janela RO clássica), tab bar com visual de botões quadrados tipo RO (não tabs modernas), stat bars com gradiente 3D, painel de stats com layout de ficha de personagem, botões com inset shadow de relevo.</p>
+      <p style="color:#888;font-size:0.85em;margin-top:8px">Escopo: ~2-3 dias. Algumas classes Tailwind customizadas.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full RO Window System — máxima fidelidade</h3>
+      <p>O RO clássico tem janelas com título bar (faixa azul/marrom com texto branco), botão X de fechar, bordas de 3px com highlight/shadow. Cada painel vira uma "janela" do RO. Login recria a tela de login original do iRO/kRO. Tab bar vira os ícones quadradinhos do RO (não texto).</p>
+      <p style="color:#888;font-size:0.85em;margin-top:8px">Escopo: ~5 dias. Maior impacto visual, maior risco.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px">Pode selecionar mais de um se quiser mix. A recomendação é <strong>B</strong> — o equilíbrio certo entre impacto e praticidade.</p>
