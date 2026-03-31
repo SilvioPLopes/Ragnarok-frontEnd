@@ -60,6 +60,12 @@ export interface WalkResult {
 export interface BattleResult {
   message: string
   monsterHpRemaining?: number | null
+  // ⚠ BACKEND NEEDED: ragnarok-core BattleResponseDTO deve adicionar:
+  //   Boolean playerDied  — true quando HP do jogador chegou a 0
+  //   Boolean monsterDied — true quando o monstro foi derrotado
+  // Enquanto o backend não enviar esses campos, o fallback abaixo usa message.includes()
+  playerDied?: boolean
+  monsterDied?: boolean
   fraud?: FraudResponse
 }
 
