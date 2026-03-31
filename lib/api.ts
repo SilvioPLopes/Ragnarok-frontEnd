@@ -149,6 +149,11 @@ export const playerApi = {
     })
   },
 
+  // ⚠ BACKEND NEEDED: DELETE /api/players/{id} — deve validar ownership via JWT e retornar 204
+  delete(id: number): Promise<void> {
+    return apiFetch<void>(`/api/players/${id}`, { method: 'DELETE' })
+  },
+
   /** stats keys use "int" (not "intelligence") per API contract */
   distributeStats(
     id: number,
