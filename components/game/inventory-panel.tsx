@@ -4,20 +4,15 @@
 import { useEffect, useState } from 'react'
 import { useGame } from '@/lib/game-context'
 import { inventoryApi } from '@/lib/api'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { toast } from 'sonner'
 import { Backpack } from 'lucide-react'
 import type { InventoryItem } from '@/lib/types'
 
 export function InventoryPanel() {
   const { playerId, inventory, refreshInventory, refreshPlayer } = useGame()
-  const [loading, setLoading] = useState<string | null>(null) // itemId being processed
+  const [loading, setLoading] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (playerId) refreshInventory()
-  }, [playerId, refreshInventory])
+  useEffect(() => { if (playerId) refreshInventory() }, [playerId, refreshInventory])
 
   const handleEquip = async (item: InventoryItem) => {
     if (!playerId || loading) return
@@ -28,9 +23,7 @@ export function InventoryPanel() {
       await refreshInventory()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao equipar item')
-    } finally {
-      setLoading(null)
-    }
+    } finally { setLoading(null) }
   }
 
   const handleUse = async (item: InventoryItem) => {
@@ -43,84 +36,59 @@ export function InventoryPanel() {
       await refreshPlayer()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao usar item')
-    } finally {
-      setLoading(null)
-    }
+    } finally { setLoading(null) }
   }
 
-  if (inventory.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8 text-center">
-        <div className="space-y-2">
-          <Backpack className="w-10 h-10 text-muted-foreground mx-auto" />
-          <p className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">
-            Inventário vazio.
-          </p>
-        </div>
-      </div>
-    )
-  }
+  if (inventory.length === 0) return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '24px' }}>
+      <Backpack style={{ width: '32px', height: '32px', color: 'var(--ro-text-muted)' }} />
+      <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '14px', color: 'var(--ro-text-muted)' }}>
+        Inventário vazio.
+      </span>
+    </div>
+  )
 
   return (
-    <div className="flex-1 flex flex-col p-4">
-      <p className="font-[family-name:var(--font-pixel)] text-xs text-foreground mb-3">
-        INVENTÁRIO ({inventory.length} itens)
-      </p>
-      <ScrollArea className="flex-1">
-        <div className="space-y-2">
-          {inventory.map((item) => (
-            <div
-              key={item.id}
-              className="game-panel p-3 flex items-center justify-between gap-3"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground truncate">
-                    {item.name}
-                  </span>
-                  {item.equipped && (
-                    <Badge variant="secondary" className="font-[family-name:var(--font-pixel)] text-[9px] shrink-0">
-                      EQUIPADO
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="font-[family-name:var(--font-pixel)] text-[9px]">
-                    {item.type}
-                  </Badge>
-                  <span className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-                    x{item.amount}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex gap-2 shrink-0">
-                {item.type === 'CONSUMABLE' && (
-                  <Button
-                    size="sm"
-                    onClick={() => handleUse(item)}
-                    disabled={loading === item.id}
-                    className="font-[family-name:var(--font-pixel)] text-[10px]"
-                  >
-                    {loading === item.id ? '...' : 'USAR'}
-                  </Button>
-                )}
-                {(item.type === 'WEAPON' || item.type === 'ARMOR') && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEquip(item)}
-                    disabled={loading === item.id}
-                    className="font-[family-name:var(--font-pixel)] text-[10px]"
-                  >
-                    {loading === item.id ? '...' : item.equipped ? 'DESEQUIPAR' : 'EQUIPAR'}
-                  </Button>
-                )}
-              </div>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px', gap: '4px', overflowY: 'auto' }}>
+      <div className="ro-section-label">Inventário ({inventory.length} itens)</div>
+      {inventory.map((item) => (
+        <div key={item.id} className="ro-list-item" style={{ justifyContent: 'space-between', cursor: 'default' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '14px', color: 'var(--ro-text)' }}>
+                {item.name}
+              </span>
+              {item.equipped && <span className="ro-badge">EQUIPADO</span>}
             </div>
-          ))}
+            <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+              <span className="ro-badge">{item.type}</span>
+              <span style={{ fontSize: '10px', color: 'var(--ro-text-muted)' }}>x{item.amount}</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '5px', flexShrink: 0 }}>
+            {item.type === 'CONSUMABLE' && (
+              <button
+                className="ro-btn-primary font-[family-name:var(--font-pixel)]"
+                style={{ padding: '4px 10px', fontSize: '9px' }}
+                disabled={loading === item.id}
+                onClick={() => handleUse(item)}
+              >
+                {loading === item.id ? '...' : 'USAR'}
+              </button>
+            )}
+            {(item.type === 'WEAPON' || item.type === 'ARMOR') && (
+              <button
+                className="ro-btn-ghost font-[family-name:var(--font-pixel)]"
+                style={{ padding: '4px 10px', fontSize: '9px' }}
+                disabled={loading === item.id}
+                onClick={() => handleEquip(item)}
+              >
+                {loading === item.id ? '...' : item.equipped ? 'DESEQUIPAR' : 'EQUIPAR'}
+              </button>
+            )}
+          </div>
         </div>
-      </ScrollArea>
+      ))}
     </div>
   )
 }
