@@ -3,7 +3,9 @@
 
 import type {
   PlayerResponse, SkillRow, InventoryItem,
-  MapInfo, WalkResult, BattleResult, FraudResponse, RequiredAction
+  MapInfo, WalkResult, BattleResult, FraudResponse, RequiredAction,
+  NpcDTO, NpcShopResponse, NpcBuyRequest, NpcBuyResponse,
+  NpcHealResponse, NpcWarpResponse, NpcSellRequest, NpcSellResponse,
 } from './types'
 import { toast } from 'sonner'
 
@@ -149,6 +151,11 @@ export const playerApi = {
     })
   },
 
+  // ⚠ BACKEND NEEDED: DELETE /api/players/{id} — deve validar ownership via JWT e retornar 204
+  delete(id: number): Promise<void> {
+    return apiFetch<void>(`/api/players/${id}`, { method: 'DELETE' })
+  },
+
   /** stats keys use "int" (not "intelligence") per API contract */
   distributeStats(
     id: number,
@@ -238,6 +245,44 @@ export const mapApi = {
     return apiFetch<void>(`/api/players/${playerId}/map/travel`, {
       method: 'POST',
       body: JSON.stringify({ destination }),
+    })
+  },
+}
+
+export const npcApi = {
+  getNpcsByMap(mapName: string): Promise<NpcDTO[]> {
+    return apiFetch<NpcDTO[]>(`/api/maps/${mapName}/npcs`)
+  },
+
+  getShop(npcId: number): Promise<NpcShopResponse> {
+    return apiFetch<NpcShopResponse>(`/api/npcs/${npcId}/shop`)
+  },
+
+  buyItem(npcId: number, body: NpcBuyRequest): Promise<NpcBuyResponse> {
+    return apiFetch<NpcBuyResponse>(`/api/npcs/${npcId}/buy`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+  },
+
+  heal(npcId: number, playerId: number): Promise<NpcHealResponse> {
+    return apiFetch<NpcHealResponse>(`/api/npcs/${npcId}/heal`, {
+      method: 'POST',
+      body: JSON.stringify({ playerId }),
+    })
+  },
+
+  warp(npcId: number, playerId: number, destination: string): Promise<NpcWarpResponse> {
+    return apiFetch<NpcWarpResponse>(`/api/npcs/${npcId}/warp`, {
+      method: 'POST',
+      body: JSON.stringify({ playerId, destination }),
+    })
+  },
+
+  sellItem(body: NpcSellRequest): Promise<NpcSellResponse> {
+    return apiFetch<NpcSellResponse>('/api/shop/npc/sell', {
+      method: 'POST',
+      body: JSON.stringify(body),
     })
   },
 }

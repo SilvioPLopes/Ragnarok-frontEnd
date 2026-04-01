@@ -3,14 +3,11 @@
 
 import { useGame } from '@/lib/game-context'
 
-function Bar({ current, max, color }: { current: number; max: number; color: string }) {
+function RoBar({ current, max, variant }: { current: number; max: number; variant: 'hp' | 'sp' | 'exp' }) {
   const pct = max > 0 ? Math.min(100, Math.round((current / max) * 100)) : 0
   return (
-    <div className="w-full bg-muted/50 h-3 border border-border">
-      <div
-        className={`h-full transition-all ${color}`}
-        style={{ width: `${pct}%` }}
-      />
+    <div className="ro-bar-track w-full" style={{ height: '8px' }}>
+      <div className={`ro-bar-fill ro-bar-${variant}`} style={{ width: `${pct}%`, height: '100%' }} />
     </div>
   )
 }
@@ -20,52 +17,48 @@ export function PlayerHUD() {
 
   if (!player) {
     return (
-      <div className="p-3 text-center font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-        Carregando...
+      <div className="ro-panel">
+        <div className="ro-panel-header">⚔ Jogador</div>
+        <div style={{ padding: '10px', fontSize: '10px', color: 'var(--ro-text-muted)' }}>Carregando...</div>
       </div>
     )
   }
 
   return (
-    <div className="game-panel p-3 space-y-2">
-      {/* Name + class */}
-      <div>
-        <p className="font-[family-name:var(--font-pixel)] text-xs text-primary truncate">
-          {player.name}
-        </p>
-        <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-          {player.jobClass} — Lv {player.baseLevel} / Job {player.jobLevel}
-        </p>
+    <div className="ro-panel">
+      <div className="ro-panel-header">
+        ⚔ {player.name}
       </div>
+      <div style={{ padding: '8px 10px' }}>
+        <div style={{ fontSize: '8px', color: 'var(--ro-text-muted)', marginBottom: '6px' }}>
+          {player.jobClass} · Base {player.baseLevel} · Job {player.jobLevel}
+        </div>
 
-      {/* HP bar */}
-      <div className="space-y-0.5">
-        <div className="flex justify-between">
-          <span className="font-[family-name:var(--font-pixel)] text-[10px] text-red-400">HP</span>
-          <span className="font-[family-name:var(--font-pixel-body)] text-xs text-muted-foreground">
-            {player.hpCurrent} / {player.hpMax}
+        {/* HP */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
+          <span style={{ fontSize: '9px', fontWeight: 700, width: '18px', textAlign: 'right', color: '#B02020' }}>HP</span>
+          <RoBar current={player.hpCurrent} max={player.hpMax} variant="hp" />
+          <span style={{ fontSize: '8px', color: 'var(--ro-text-muted)', minWidth: '56px', textAlign: 'right' }}>
+            {player.hpCurrent}/{player.hpMax}
           </span>
         </div>
-        <Bar current={player.hpCurrent} max={player.hpMax} color="bg-red-500" />
-      </div>
 
-      {/* SP bar */}
-      <div className="space-y-0.5">
-        <div className="flex justify-between">
-          <span className="font-[family-name:var(--font-pixel)] text-[10px] text-blue-400">SP</span>
-          <span className="font-[family-name:var(--font-pixel-body)] text-xs text-muted-foreground">
-            {player.spCurrent} / {player.spMax}
+        {/* SP */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
+          <span style={{ fontSize: '9px', fontWeight: 700, width: '18px', textAlign: 'right', color: '#2050D0' }}>SP</span>
+          <RoBar current={player.spCurrent} max={player.spMax} variant="sp" />
+          <span style={{ fontSize: '8px', color: 'var(--ro-text-muted)', minWidth: '56px', textAlign: 'right' }}>
+            {player.spCurrent}/{player.spMax}
           </span>
         </div>
-        <Bar current={player.spCurrent} max={player.spMax} color="bg-blue-500" />
-      </div>
 
-      {/* Zenny */}
-      <div className="flex justify-between items-center pt-1 border-t border-border">
-        <span className="font-[family-name:var(--font-pixel)] text-[10px] text-yellow-400">ZENNY</span>
-        <span className="font-[family-name:var(--font-pixel-body)] text-sm text-yellow-300">
-          {player.zenny.toLocaleString()}z
-        </span>
+        {/* Zenny */}
+        <div style={{ marginTop: '6px', paddingTop: '5px', borderTop: '1px solid #D4E4F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '8px', color: 'var(--ro-text-muted)' }}>Zenny</span>
+          <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ro-zenny)' }}>
+            {player.zenny.toLocaleString()} z
+          </span>
+        </div>
       </div>
     </div>
   )

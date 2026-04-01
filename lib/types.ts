@@ -60,6 +60,12 @@ export interface WalkResult {
 export interface BattleResult {
   message: string
   monsterHpRemaining?: number | null
+  // ⚠ BACKEND NEEDED: ragnarok-core BattleResponseDTO deve adicionar:
+  //   Boolean playerDied  — true quando HP do jogador chegou a 0
+  //   Boolean monsterDied — true quando o monstro foi derrotado
+  // Enquanto o backend não enviar esses campos, o fallback abaixo usa message.includes()
+  playerDied?: boolean
+  monsterDied?: boolean
   fraud?: FraudResponse
 }
 
@@ -101,3 +107,29 @@ export interface ClassChangeRequirement {
 
 /** Alias para compatibilidade com imports existentes em select-character e class-change-panel */
 export type Player = PlayerResponse
+
+// ─── NPC types ────────────────────────────────────────────────────────────────
+
+export interface NpcDTO {
+  id: number
+  name: string
+  type: 'SHOP' | 'HEAL' | 'WARP' | 'NPC'
+  x: number
+  y: number
+  spriteRef: string
+}
+
+export interface NpcShopResponse {
+  npcName: string
+  items: { itemId: number; itemName: string; price: number }[]
+}
+
+export interface NpcBuyRequest  { playerId: number; itemId: number; amount: number }
+export interface NpcBuyResponse { message: string; itemName: string; remainingZenny: number }
+
+export interface NpcHealResponse { message: string; hp: number; sp: number }
+
+export interface NpcWarpResponse { newMap: string; x: number; y: number }
+
+export interface NpcSellRequest  { playerId: number; playerItemId: string; quantity: number }
+export interface NpcSellResponse { message: string; remainingZenny: number }

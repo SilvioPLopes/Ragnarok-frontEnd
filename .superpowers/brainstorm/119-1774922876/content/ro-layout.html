@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Mockup RO Layout</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #1a1a2e; font-family: 'Courier New', monospace; padding: 16px; color: #000; }
+
+h2 { color: #fff; font-size: 16px; margin-bottom: 4px; }
+.subtitle { color: #aaa; font-size: 12px; margin-bottom: 16px; }
+
+/* ========================
+   RO WINDOW CHROME
+======================== */
+.ro-window {
+  border: 2px solid #4A69A2;
+  background: #EFEFEF;
+  box-shadow: 2px 2px 0 #000, inset 1px 1px 0 #fff, inset -1px -1px 0 #aaa;
+}
+
+.ro-titlebar {
+  background: linear-gradient(180deg, #6080be 0%, #4A69A2 60%, #3a5585 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 6px;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 0 #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+.ro-titlebar-btn {
+  width: 12px; height: 12px;
+  background: linear-gradient(135deg, #ddd 0%, #aaa 50%, #888 100%);
+  border: 1px solid #666;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 8px; color: #333; cursor: default;
+  box-shadow: inset -1px -1px 0 #555, inset 1px 1px 0 #fff;
+}
+
+.ro-panel-body {
+  padding: 4px 6px;
+}
+
+/* Inset field (stats, inputs) */
+.ro-inset {
+  background: #fff;
+  border: 1px solid #888;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* RO stat bar */
+.ro-bar-wrap { display:flex; align-items:center; gap:4px; margin-bottom:3px; }
+.ro-bar-label { font-size:9px; font-weight:bold; width:18px; text-align:right; }
+.ro-bar { flex:1; height:8px; background:#ccc; border:1px solid #888; box-shadow:inset 1px 1px 0 rgba(0,0,0,0.2); overflow:hidden; }
+.ro-bar-hp  { background: linear-gradient(180deg, #ff6666 0%, #cc0000 50%, #990000 100%); }
+.ro-bar-sp  { background: linear-gradient(180deg, #6699ff 0%, #2244cc 50%, #0022aa 100%); }
+.ro-bar-exp { background: linear-gradient(180deg, #aaff66 0%, #44aa00 50%, #226600 100%); }
+.ro-bar-num { font-size:8px; color:#444; width:60px; text-align:right; }
+
+/* RO button */
+.ro-btn {
+  background: linear-gradient(180deg, #e0e0e0 0%, #c0c0c0 50%, #a8a8a8 100%);
+  border: 1px solid #666;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #888, 1px 1px 0 #000;
+  font-size: 9px; font-weight: bold; color: #000;
+  padding: 3px 8px; cursor: default; letter-spacing: 0.3px;
+  font-family: 'Courier New', monospace;
+}
+.ro-btn:active, .ro-btn.active {
+  background: linear-gradient(180deg, #a8a8a8 0%, #c0c0c0 100%);
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #888;
+}
+.ro-btn.primary {
+  background: linear-gradient(180deg, #6a90d8 0%, #4A69A2 50%, #3a5585 100%);
+  color: #fff; text-shadow: 1px 1px 0 #000;
+  box-shadow: inset 1px 1px 0 #8ab0f0, inset -1px -1px 0 #1a3560, 1px 1px 0 #000;
+}
+
+/* RO stat row */
+.ro-stat { display:flex; justify-content:space-between; align-items:center; font-size:10px; padding:1px 2px; }
+.ro-stat:nth-child(odd) { background: rgba(74,105,162,0.08); }
+.ro-stat-label { color: #334; font-weight: bold; }
+.ro-stat-val { color: #002288; font-weight: bold; }
+
+/* Selected item */
+.ro-list-item { padding: 2px 4px; font-size: 10px; cursor: default; }
+.ro-list-item.selected { background: #7BA1D2; color: #fff; }
+.ro-list-item:hover:not(.selected) { background: #dde8f8; }
+
+/* Tab strip (bottom) */
+.ro-tabs { display:flex; border-top: 2px solid #4A69A2; background: #d8d8d8; }
+.ro-tab {
+  flex:1; padding: 4px 2px; font-size: 8px; font-weight: bold; text-align: center;
+  border-right: 1px solid #aaa; cursor: default; color: #333;
+  background: linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 100%);
+  letter-spacing: 0.3px;
+}
+.ro-tab:last-child { border-right: none; }
+.ro-tab.active {
+  background: linear-gradient(180deg, #6a90d8 0%, #4A69A2 100%);
+  color: #fff; text-shadow: 1px 1px 0 #000;
+  box-shadow: inset 1px 1px 0 #8ab0f0;
+}
+
+/* Layout principal */
+.game-layout {
+  display: flex;
+  gap: 8px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.sidebar { width: 180px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+.main-area { flex: 1; display: flex; flex-direction: column; gap: 0; min-height: 480px; }
+.main-content { flex: 1; background: #e8e8e8; padding: 8px; }
+</style>
+</head>
+<body>
+<h2>Mockup — Layout RO com paleta correta</h2>
+<p class="subtitle">Paleta: #4A69A2 (azul header), #EFEFEF (painel), #7BA1D2 (seleção), texto preto. Layout compacto desktop.</p>
+
+<div class="game-layout">
+
+  <!-- SIDEBAR ESQUERDA -->
+  <div class="sidebar">
+
+    <!-- PlayerHUD -->
+    <div class="ro-window">
+      <div class="ro-titlebar">
+        <span>⚔ Status do Jogador</span>
+        <span class="ro-titlebar-btn">×</span>
+      </div>
+      <div class="ro-panel-body">
+        <div style="font-size:11px;font-weight:bold;color:#002288;margin-bottom:2px">DemoKnight</div>
+        <div style="font-size:9px;color:#555;margin-bottom:6px">SWORDSMAN &nbsp;|&nbsp; Lv 25 / Job 10</div>
+
+        <div class="ro-bar-wrap">
+          <span class="ro-bar-label" style="color:#cc0000">HP</span>
+          <div class="ro-bar"><div class="ro-bar-hp" style="width:72%"></div></div>
+          <span class="ro-bar-num">720/1000</span>
+        </div>
+        <div class="ro-bar-wrap">
+          <span class="ro-bar-label" style="color:#2244cc">SP</span>
+          <div class="ro-bar"><div class="ro-bar-sp" style="width:50%"></div></div>
+          <span class="ro-bar-num">50/100</span>
+        </div>
+        <div class="ro-bar-wrap">
+          <span class="ro-bar-label" style="color:#226600">EXP</span>
+          <div class="ro-bar"><div class="ro-bar-exp" style="width:34%"></div></div>
+          <span class="ro-bar-num">34%</span>
+        </div>
+
+        <div style="border-top:1px solid #bbb;margin-top:5px;padding-top:4px;display:flex;justify-content:space-between">
+          <span style="font-size:9px;color:#555">Zenny</span>
+          <span style="font-size:10px;font-weight:bold;color:#996600">25.000 z</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini mapa / localização -->
+    <div class="ro-window">
+      <div class="ro-titlebar">
+        <span>📍 Localização</span>
+      </div>
+      <div class="ro-panel-body">
+        <div style="background:#c8e0b0;border:1px solid #888;height:80px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#446">
+          [prontera field]
+        </div>
+        <div style="font-size:10px;font-weight:bold;color:#002288;margin-top:4px">Prontera Field</div>
+        <div style="font-size:9px;color:#666">Monstros: Poring, Fabre</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ÁREA PRINCIPAL -->
+  <div class="main-area ro-window" style="background:#EFEFEF;">
+    <div class="ro-titlebar">
+      <span>🗺 Mapa — Prontera Field</span>
+      <span class="ro-titlebar-btn">×</span>
+    </div>
+
+    <!-- Conteúdo da aba ativa (Mapa) -->
+    <div class="main-content">
+
+      <!-- Portais disponíveis -->
+      <div style="margin-bottom:8px">
+        <div style="font-size:9px;font-weight:bold;color:#4A69A2;border-bottom:1px solid #4A69A2;padding-bottom:2px;margin-bottom:4px;letter-spacing:0.5px">PORTAIS DISPONÍVEIS</div>
+        <div class="ro-window" style="margin-bottom:0">
+          <div class="ro-list-item selected">→ Prontera</div>
+          <div class="ro-list-item">→ Morroc Field</div>
+          <div class="ro-list-item">→ Payon</div>
+        </div>
+      </div>
+
+      <!-- Botão andar -->
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="ro-btn primary" style="flex:1;padding:6px">► ANDAR NO MAPA</button>
+        <button class="ro-btn" style="padding:6px 10px">⟳</button>
+      </div>
+
+      <!-- Log de batalha (compacto) -->
+      <div>
+        <div style="font-size:9px;font-weight:bold;color:#4A69A2;border-bottom:1px solid #4A69A2;padding-bottom:2px;margin-bottom:4px;letter-spacing:0.5px">LOG RECENTE</div>
+        <div class="ro-inset" style="padding:4px;height:80px;overflow-y:auto">
+          <div style="font-size:9px;color:#cc0000;margin-bottom:1px">[Você atacou Poring por 42 de dano]</div>
+          <div style="font-size:9px;color:#006600;margin-bottom:1px">[Poring foi derrotado! +120 EXP]</div>
+          <div style="font-size:9px;color:#000033;margin-bottom:1px">[Você encontrou um Fabre]</div>
+          <div style="font-size:9px;color:#cc0000">[Fabre atacou você por 18]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab bar na base -->
+    <div class="ro-tabs">
+      <div class="ro-tab active">🗺 MAPA</div>
+      <div class="ro-tab">✦ SKILLS</div>
+      <div class="ro-tab">🎒 ITENS</div>
+      <div class="ro-tab">📊 STATUS</div>
+      <div class="ro-tab">⬆ CLASSE</div>
+      <div class="ro-tab">📜 LOG</div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:12px;color:#aaa">
+  Este é o esqueleto — paleta correta, layout compacto, chrome RO nas janelas. Painéis claros com bordas azuis ao invés do dark theme atual. Tab bar com botões estilo Windows 95 como o RO usa.
+  <br>Responda no terminal: está na direção certa? O que mudaria?
+</p>
+
+</body>
+</html>

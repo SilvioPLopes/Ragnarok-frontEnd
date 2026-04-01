@@ -58,7 +58,22 @@
   --chart-5: oklch(0.75 0.18 140);
   
   --radius: 0.25rem;
-  
+
+  /* ── Ragnarok Online light theme tokens ── */
+  --ro-panel-bg:      #F7F7F7;
+  --ro-header-light:  #D1E4F7;
+  --ro-header-dark:   #9DB2DB;
+  --ro-border:        #9DB2DB;
+  --ro-selection:     #B5CFE9;
+  --ro-body-bg:       #EEF4F9;
+  --ro-page-bg:       #CCDAE8;
+  --ro-text:          #1A2A3A;
+  --ro-text-muted:    #667788;
+  --ro-text-accent:   #1A3060;
+  --ro-accent-rgb:    157, 178, 219;
+  --ro-border-dark:   #8AA4CC;
+  --ro-zenny:         #7A5800;
+
   /* Sidebar */
   --sidebar: oklch(0.12 0.02 260);
   --sidebar-foreground: oklch(0.95 0.01 80);
@@ -110,6 +125,7 @@
   --sidebar-accent-foreground: oklch(0.95 0.01 80);
   --sidebar-border: oklch(0.35 0.04 260);
   --sidebar-ring: oklch(0.8 0.15 85);
+  /* --ro-* tokens intentionally not overridden here; RO panels are always light-theme */
 }
 
 @theme inline {
@@ -272,4 +288,174 @@
   .battle-log-info {
     color: var(--accent);
   }
+
+  /* ── RO Panel ── */
+  .ro-panel {
+    background: var(--ro-panel-bg);
+    border: 1px solid var(--ro-border);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(80,120,180,0.13), 0 1px 2px rgba(80,120,180,0.07);
+    overflow: hidden;
+  }
+
+  .ro-panel-header {
+    background: linear-gradient(180deg, var(--ro-header-light) 0%, var(--ro-header-dark) 100%);
+    border-bottom: 1px solid var(--ro-border-dark);
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ro-text);
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ── RO Buttons ── */
+  .ro-btn-primary {
+    background: linear-gradient(180deg, var(--ro-header-light) 0%, var(--ro-header-dark) 100%);
+    border: 1px solid var(--ro-border);
+    border-radius: 8px;
+    color: var(--ro-text);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(100,150,210,0.18);
+    cursor: pointer;
+  }
+  .ro-btn-primary:hover {
+    filter: brightness(1.07);
+  }
+  .ro-btn-primary:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  .ro-btn-ghost {
+    background: var(--ro-panel-bg);
+    border: 1px solid var(--ro-border);
+    border-radius: 8px;
+    color: var(--ro-text-muted);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ro-btn-ghost:hover {
+    background: rgba(var(--ro-accent-rgb),0.15);
+  }
+  .ro-btn-ghost:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  /* ── RO List items ── */
+  .ro-list-item {
+    padding: 5px 8px;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    cursor: default;
+    color: var(--ro-text);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    background: rgba(var(--ro-accent-rgb),0.12);
+    transition: background 0.1s;
+  }
+  .ro-list-item:hover {
+    background: rgba(var(--ro-accent-rgb),0.22);
+  }
+  .ro-list-item.selected {
+    background: linear-gradient(180deg, var(--ro-header-light) 0%, var(--ro-selection) 100%);
+    color: #0A1A30;
+    font-weight: 600;
+  }
+
+  /* ── RO Stat bars ── */
+  .ro-bar-track {
+    background: #E2EDF5;
+    border: 1px solid #C0D4E8;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .ro-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+  .ro-bar-hp  { background: linear-gradient(90deg, #F08080, #D02020 60%, #A01010); }
+  .ro-bar-sp  { background: linear-gradient(90deg, #80A8F0, #2050D0 60%, #1030A0); }
+  .ro-bar-exp { background: linear-gradient(90deg, #90D870, #38A010 60%, #206000); }
+
+  /* ── RO Tab bar ── */
+  .ro-tab-bar {
+    display: flex;
+    background: linear-gradient(180deg, var(--ro-header-light) 0%, var(--ro-header-dark) 100%);
+    border-top: 1px solid var(--ro-border-dark);
+    padding: 4px 5px;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .ro-tab {
+    flex: 1;
+    padding: 5px 3px;
+    text-align: center;
+    font-size: 8px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #1A3A5A;
+    letter-spacing: 0.2px;
+    border: none;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .ro-tab.active {
+    background: var(--ro-panel-bg);
+    color: #0A2040;
+    box-shadow: 0 1px 4px rgba(80,130,200,0.18);
+  }
+
+  /* ── RO Section label ── */
+  .ro-section-label {
+    font-size: 8px;
+    font-weight: 600;
+    color: #4A7A9A;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  /* ── RO Stat row (zebra) ── */
+  .ro-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 6px;
+    font-size: 10px;
+    border-radius: 5px;
+  }
+  .ro-stat-row:nth-child(even) { background: rgba(var(--ro-accent-rgb),0.13); }
+
+  /* ── RO Badge ── */
+  .ro-badge {
+    display: inline-block;
+    font-size: 8px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(var(--ro-accent-rgb),0.25);
+    color: #3A5A7A;
+    border: 1px solid #B0C8E0;
+  }
+
+  /* ── RO Log box ── */
+  .ro-log-box {
+    background: #fff;
+    border: 1px solid #C8DCEA;
+    border-radius: 7px;
+    padding: 6px 8px;
+  }
+  .ro-log-dmg  { color: #B02020; }
+  .ro-log-exp  { color: #207020; }
+  .ro-log-info { color: #205090; }
 }

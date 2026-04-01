@@ -182,8 +182,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       console.log('[attackMonster] result', result)
       appendLog(result.message)
 
-      const isFatal = result.message.includes('FATAL')
-      const isVictory = result.message.includes('VITÓRIA')
+      // Usa campos booleanos do backend quando disponíveis; fallback para parsing de string
+      // ⚠ BACKEND NEEDED: remover fallback após BattleResponseDTO expor playerDied/monsterDied
+      const isFatal = result.playerDied ?? result.message.includes('FATAL')
+      const isVictory = result.monsterDied ?? result.message.includes('VITÓRIA')
 
       // Update monster HP for normal rounds (BattleHud handles victory/fatal)
       if (!isFatal && !isVictory && result.monsterHpRemaining != null) {

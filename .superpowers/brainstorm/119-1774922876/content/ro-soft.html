@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Mockup RO Soft</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #dce8f0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  padding: 20px;
+  color: #1a2a3a;
+  min-height: 100vh;
+}
+
+h2  { color: #1a2a3a; font-size: 15px; margin-bottom: 4px; }
+.sub { color: #556; font-size: 11px; margin-bottom: 16px; }
+
+/* ========================
+   PALETA
+   #F7F7F7  painel fundo
+   #C9E4F4  header/acento azul claro
+   #B5CFE9  borda/seleção azul médio
+   #1a2a3a  texto
+======================== */
+
+.panel {
+  background: #F7F7F7;
+  border: 1px solid #B5CFE9;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(100,150,200,0.12), 0 1px 2px rgba(100,150,200,0.08);
+  overflow: hidden;
+}
+
+.panel-header {
+  background: #C9E4F4;
+  border-bottom: 1px solid #B5CFE9;
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #2a4a6a;
+  letter-spacing: 0.4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.panel-body { padding: 8px 10px; }
+
+/* Bars */
+.bar-row { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+.bar-label { font-size:9px; font-weight:700; width:18px; }
+.bar-track {
+  flex: 1; height: 7px;
+  background: #e0eaf2;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #c5d8e8;
+}
+.bar-fill { height:100%; border-radius:4px; }
+.bar-hp  { background: linear-gradient(90deg, #f07070, #d03030); }
+.bar-sp  { background: linear-gradient(90deg, #7ab0f0, #3060c0); }
+.bar-exp { background: linear-gradient(90deg, #90d870, #3a9020); }
+.bar-num { font-size:8px; color:#556; min-width:54px; text-align:right; }
+
+/* Stat row */
+.stat-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 3px 6px; font-size:10px; border-radius:5px;
+}
+.stat-row:nth-child(even) { background: rgba(181,207,233,0.18); }
+.stat-label { color: #3a5a7a; font-weight: 600; }
+.stat-val   { color: #1a3a6a; font-weight: 700; }
+
+/* Button */
+.btn {
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border: 1px solid #B5CFE9;
+  cursor: default;
+  letter-spacing: 0.3px;
+  transition: none;
+}
+.btn-primary {
+  background: linear-gradient(180deg, #C9E4F4 0%, #8ab8d8 100%);
+  color: #1a3a5a;
+  border-color: #7aaac8;
+  box-shadow: 0 1px 3px rgba(100,160,210,0.2);
+}
+.btn-ghost {
+  background: #F7F7F7;
+  color: #3a5a7a;
+}
+
+/* List / portal item */
+.list-item {
+  padding: 5px 10px;
+  font-size: 10px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  cursor: default;
+  color: #2a4a6a;
+  display: flex; align-items:center; gap:5px;
+}
+.list-item.selected {
+  background: #B5CFE9;
+  color: #0a2040;
+  font-weight: 600;
+}
+.list-item:not(.selected) { background: rgba(181,207,233,0.15); }
+
+/* Tabs */
+.tab-bar {
+  display: flex;
+  background: #C9E4F4;
+  border-top: 1px solid #B5CFE9;
+  border-radius: 0 0 10px 10px;
+  padding: 4px 6px;
+  gap: 3px;
+}
+.tab {
+  flex:1; padding: 5px 4px;
+  text-align: center; font-size: 8px; font-weight:600;
+  border-radius: 6px; cursor:default;
+  color: #3a5a7a; letter-spacing: 0.3px;
+}
+.tab.active {
+  background: #F7F7F7;
+  color: #0a2a4a;
+  box-shadow: 0 1px 3px rgba(100,150,200,0.2);
+}
+
+/* Log */
+.log-entry { font-size: 9px; padding: 2px 0; border-bottom: 1px solid #e8eef4; }
+.log-entry:last-child { border-bottom: none; }
+.log-dmg  { color: #c03030; }
+.log-exp  { color: #2a8020; }
+.log-info { color: #3060a0; }
+
+/* Layout */
+.layout { display:flex; gap:10px; max-width:860px; margin:0 auto; }
+.sidebar { width:190px; flex-shrink:0; display:flex; flex-direction:column; gap:8px; }
+.main    { flex:1; display:flex; flex-direction:column; }
+.main-content { flex:1; padding:10px; background:#F0F5F9; }
+</style>
+</head>
+<body>
+
+<h2>Mockup — Paleta RO suave e arredondada</h2>
+<p class="sub">#C9E4F4 header · #F7F7F7 painel · #B5CFE9 borda/seleção · cantos arredondados · sombras leves</p>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Player HUD -->
+    <div class="panel">
+      <div class="panel-header">⚔ DemoKnight</div>
+      <div class="panel-body">
+        <div style="font-size:9px;color:#557;margin-bottom:6px">Swordsman · Base 25 · Job 10</div>
+
+        <div class="bar-row">
+          <span class="bar-label" style="color:#c03030">HP</span>
+          <div class="bar-track"><div class="bar-fill bar-hp" style="width:72%"></div></div>
+          <span class="bar-num">720 / 1000</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label" style="color:#3060c0">SP</span>
+          <div class="bar-track"><div class="bar-fill bar-sp" style="width:50%"></div></div>
+          <span class="bar-num">50 / 100</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label" style="color:#2a8020">EXP</span>
+          <div class="bar-track"><div class="bar-fill bar-exp" style="width:34%"></div></div>
+          <span class="bar-num">34%</span>
+        </div>
+
+        <div style="margin-top:6px;padding-top:5px;border-top:1px solid #d8e8f0;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:9px;color:#778">Zenny</span>
+          <span style="font-size:10px;font-weight:700;color:#7a5a00">25.000 z</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Localização -->
+    <div class="panel">
+      <div class="panel-header">📍 Localização</div>
+      <div class="panel-body">
+        <div style="background:linear-gradient(135deg,#c8dfc0,#a0c890);border-radius:6px;border:1px solid #B5CFE9;height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">
+          <span style="font-size:8px;color:#2a4a2a;opacity:0.7">prontera field</span>
+        </div>
+        <div style="font-size:10px;font-weight:600;color:#1a3a5a">Prontera Field</div>
+        <div style="font-size:8px;color:#778;margin-top:1px">Poring · Fabre · Drops</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main panel">
+    <div class="panel-header">🗺 Mapa</div>
+    <div class="main-content">
+
+      <!-- Walk button -->
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;padding:7px">► Andar no Mapa</button>
+
+      <!-- Portais -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:8px;font-weight:600;color:#4a7a9a;letter-spacing:0.5px;margin-bottom:4px;text-transform:uppercase">Portais Disponíveis</div>
+        <div class="list-item selected">→ Prontera</div>
+        <div class="list-item">→ Morroc Field</div>
+        <div class="list-item">→ Payon</div>
+      </div>
+
+      <!-- Log -->
+      <div>
+        <div style="font-size:8px;font-weight:600;color:#4a7a9a;letter-spacing:0.5px;margin-bottom:4px;text-transform:uppercase">Atividade Recente</div>
+        <div style="background:#fff;border:1px solid #d0e4f0;border-radius:7px;padding:6px 8px">
+          <div class="log-entry log-dmg">Você atacou Poring por 42 de dano</div>
+          <div class="log-entry log-exp">Poring derrotado! +120 EXP, +80 z</div>
+          <div class="log-entry log-info">Você encontrou um Fabre</div>
+          <div class="log-entry log-dmg">Fabre atacou você por 18</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active">🗺 Mapa</div>
+      <div class="tab">✦ Skills</div>
+      <div class="tab">🎒 Itens</div>
+      <div class="tab">📊 Status</div>
+      <div class="tab">⬆ Classe</div>
+      <div class="tab">📜 Log</div>
+    </div>
+  </div>
+
+</div>
+
+<p class="sub" style="margin-top:14px;color:#557">
+  Bom caminho? Responde aqui no terminal — o que agrada, o que ainda incomoda.
+</p>
+
+</body>
+</html>

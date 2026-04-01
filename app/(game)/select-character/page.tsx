@@ -1,3 +1,4 @@
+// app/(game)/select-character/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -6,54 +7,23 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import { useGame } from '@/lib/game-context'
 import { playerApi } from '@/lib/api'
-import type { Player, JobClass } from '@/lib/types'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import type { Player } from '@/lib/types'
 import { toast } from 'sonner'
-import {
-  Plus,
-  Trash2,
-  Play,
-  LogOut,
-  Sword,
-  Shield,
-  Wand2,
-  Target,
-  Coins,
-  Heart,
-  Footprints
-} from 'lucide-react'
+import { Plus, Play, LogOut } from 'lucide-react'
 
-const CLASS_ICONS: Record<JobClass, React.ReactNode> = {
-  NOVICE: <Footprints className="w-5 h-5" />,
-  SWORDSMAN: <Sword className="w-5 h-5" />,
-  MAGE: <Wand2 className="w-5 h-5" />,
-  ARCHER: <Target className="w-5 h-5" />,
-  THIEF: <Footprints className="w-5 h-5" />,
-  MERCHANT: <Coins className="w-5 h-5" />,
-  ACOLYTE: <Heart className="w-5 h-5" />,
-  KNIGHT: <Shield className="w-5 h-5" />,
-  WIZARD: <Wand2 className="w-5 h-5" />,
-  HUNTER: <Target className="w-5 h-5" />,
-  ASSASSIN: <Footprints className="w-5 h-5" />,
-  BLACKSMITH: <Coins className="w-5 h-5" />,
-  PRIEST: <Heart className="w-5 h-5" />,
-}
+const DEMO_PLAYERS: Player[] = [
+  { id: 1, name: 'DemoKnight', jobClass: 'SWORDSMAN', baseLevel: 25, jobLevel: 10, hpCurrent: 850, hpMax: 1200, spCurrent: 80, spMax: 150, str: 35, agi: 20, vit: 25, intelligence: 5, dex: 15, luk: 10, statPoints: 12, skillPoints: 5, zenny: 25000, mapName: 'prontera' },
+  { id: 2, name: 'DemoMage',   jobClass: 'MAGE',      baseLevel: 18, jobLevel: 8,  hpCurrent: 380, hpMax: 500,  spCurrent: 450, spMax: 600, str: 5, agi: 10, vit: 10, intelligence: 40, dex: 25, luk: 15, statPoints: 8, skillPoints: 3, zenny: 18000, mapName: 'prontera' },
+  { id: 3, name: 'DemoArcher', jobClass: 'ARCHER',    baseLevel: 22, jobLevel: 9,  hpCurrent: 650, hpMax: 800,  spCurrent: 150, spMax: 200, str: 15, agi: 35, vit: 15, intelligence: 10, dex: 40, luk: 20, statPoints: 10, skillPoints: 4, zenny: 32000, mapName: 'prontera' },
+]
 
-const CLASS_COLORS: Record<JobClass, string> = {
-  NOVICE: 'text-muted-foreground',
-  SWORDSMAN: 'text-destructive',
-  MAGE: 'text-blue-400',
-  ARCHER: 'text-green-400',
-  THIEF: 'text-purple-400',
-  MERCHANT: 'text-primary',
-  ACOLYTE: 'text-pink-400',
-  KNIGHT: 'text-destructive',
-  WIZARD: 'text-blue-400',
-  HUNTER: 'text-green-400',
-  ASSASSIN: 'text-purple-400',
-  BLACKSMITH: 'text-primary',
-  PRIEST: 'text-pink-400',
+function RoBar({ current, max, variant }: { current: number; max: number; variant: 'hp' | 'sp' }) {
+  const pct = max > 0 ? Math.min(100, Math.round((current / max) * 100)) : 0
+  return (
+    <div className="ro-bar-track w-full" style={{ height: '10px' }}>
+      <div className={`ro-bar-fill ro-bar-${variant}`} style={{ width: `${pct}%`, height: '100%' }} />
+    </div>
+  )
 }
 
 export default function SelectCharacterPage() {
@@ -61,360 +31,182 @@ export default function SelectCharacterPage() {
   const { logout, user } = useAuth()
   const { setPlayerId } = useGame()
   const [players, setPlayers] = useState<Player[]>([])
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
+  const [selected, setSelected] = useState<Player | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const isDemoMode = typeof window !== 'undefined' && localStorage.getItem('demo_mode') === 'true'
 
-  // Demo data for testing without backend
-  const demoPlayers: Player[] = [
-    {
-      id: 1,
-      name: 'DemoKnight',
-      jobClass: 'SWORDSMAN',
-      baseLevel: 25,
-      jobLevel: 10,
-      hpCurrent: 850,
-      hpMax: 1200,
-      spCurrent: 80,
-      spMax: 150,
-      str: 35,
-      agi: 20,
-      vit: 25,
-      intelligence: 5,
-      dex: 15,
-      luk: 10,
-      statPoints: 12,
-      skillPoints: 5,
-      zenny: 25000,
-      mapName: 'prontera',
-    },
-    {
-      id: 2,
-      name: 'DemoMage',
-      jobClass: 'MAGE',
-      baseLevel: 18,
-      jobLevel: 8,
-      hpCurrent: 380,
-      hpMax: 500,
-      spCurrent: 450,
-      spMax: 600,
-      str: 5,
-      agi: 10,
-      vit: 10,
-      intelligence: 40,
-      dex: 25,
-      luk: 15,
-      statPoints: 8,
-      skillPoints: 3,
-      zenny: 18000,
-      mapName: 'prontera',
-    },
-    {
-      id: 3,
-      name: 'DemoArcher',
-      jobClass: 'ARCHER',
-      baseLevel: 22,
-      jobLevel: 9,
-      hpCurrent: 650,
-      hpMax: 800,
-      spCurrent: 150,
-      spMax: 200,
-      str: 15,
-      agi: 35,
-      vit: 15,
-      intelligence: 10,
-      dex: 40,
-      luk: 20,
-      statPoints: 10,
-      skillPoints: 4,
-      zenny: 32000,
-      mapName: 'prontera',
-    },
-  ]
-
-  useEffect(() => {
-    loadPlayers()
-  }, [])
+  useEffect(() => { loadPlayers() }, [])
 
   const loadPlayers = async () => {
     setIsLoading(true)
-
-    // Demo mode - use fake data
     if (isDemoMode) {
-      setTimeout(() => {
-        setPlayers(demoPlayers)
-        setSelectedPlayer(demoPlayers[0])
-        setIsLoading(false)
-      }, 500)
+      setTimeout(() => { setPlayers(DEMO_PLAYERS); setSelected(DEMO_PLAYERS[0]); setIsLoading(false) }, 400)
       return
     }
-
     try {
       const data = await playerApi.list()
       setPlayers(data)
-      if (data.length > 0) setSelectedPlayer(data[0])
+      if (data.length > 0) setSelected(data[0])
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao carregar personagens')
-    } finally {
-      setIsLoading(false)
-    }
+    } finally { setIsLoading(false) }
   }
 
-  const handleSelectPlayer = (player: Player) => {
-    setSelectedPlayer(player)
-  }
-
-  const handlePlayClick = () => {
-    if (!selectedPlayer) {
-      toast.error('Selecione um personagem')
-      return
-    }
-    setPlayerId(selectedPlayer.id)
+  const handlePlay = () => {
+    if (!selected) { toast.error('Selecione um personagem'); return }
+    setPlayerId(selected.id)
     router.push('/game')
   }
 
-  const handleDeletePlayer = async () => {
-    if (!selectedPlayer) return
-
+  const handleDelete = async () => {
+    if (!selected) return
     setIsDeleting(true)
-
-    // Demo mode
     if (isDemoMode) {
       setTimeout(() => {
-        setPlayers(prev => prev.filter(p => p.id !== selectedPlayer.id))
-        setSelectedPlayer(null)
-        toast.success('Personagem deletado (demo)')
+        setPlayers(p => p.filter(x => x.id !== selected.id))
+        setSelected(null)
+        toast.success('Personagem removido (demo)')
         setIsDeleting(false)
       }, 300)
       return
     }
-
     try {
-      setPlayers(prev => prev.filter(p => p.id !== selectedPlayer.id))
-      setSelectedPlayer(null)
+      // ⚠ BACKEND NEEDED: endpoint DELETE /api/players/{id} deve existir no core
+      await playerApi.delete(selected.id)
+      setPlayers(p => p.filter(x => x.id !== selected.id))
+      setSelected(null)
       toast.success('Personagem removido')
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
-  const handleLogout = () => {
-    logout()
-    router.push('/login')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao remover personagem')
+    } finally { setIsDeleting(false) }
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-secondary/20">
-      {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-border">
+    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--ro-page-bg)' }}>
+
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--ro-border)', background: 'var(--ro-panel-bg)' }}>
         <div>
-          <h1 className="font-[family-name:var(--font-pixel)] text-lg text-primary">
-            RAGNAROK
-          </h1>
-          <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-            Bem-vindo, {user?.username || 'Aventureiro'}
-          </p>
+          <h1 className="font-[family-name:var(--font-pixel)]" style={{ fontSize: '14px', color: 'var(--ro-text-accent)' }}>RAGNAROK</h1>
+          <p style={{ fontSize: '11px', color: 'var(--ro-text-muted)' }}>Bem-vindo, {user?.username ?? 'Aventureiro'}</p>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLogout}
-          className="font-[family-name:var(--font-pixel-body)] text-lg"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
+        <button className="ro-btn-ghost" style={{ padding: '6px 12px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => { logout(); router.push('/login') }}>
+          <LogOut style={{ width: '14px', height: '14px' }} />
           Sair
-        </Button>
+        </button>
       </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4">
-        {/* Character List */}
-        <div className="w-full lg:w-80 game-panel p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-[family-name:var(--font-pixel)] text-xs text-foreground">
-              PERSONAGENS
-            </h2>
-            <Link href="/create-character">
-              <Button size="sm" className="pixel-button font-[family-name:var(--font-pixel)] text-[10px]">
-                <Plus className="w-3 h-3 mr-1" />
-                NOVO
-              </Button>
-            </Link>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+        <div style={{ display: 'flex', gap: '12px', flex: 1, flexWrap: 'wrap' }}>
+
+          {/* Character list */}
+          <div className="ro-panel" style={{ width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+            <div className="ro-panel-header" style={{ justifyContent: 'space-between' }}>
+              <span>Personagens</span>
+              <Link href="/create-character">
+                <button className="ro-btn-primary font-[family-name:var(--font-pixel)]" style={{ padding: '2px 8px', fontSize: '8px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <Plus style={{ width: '10px', height: '10px' }} /> NOVO
+                </button>
+              </Link>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '6px' }}>
+              {isLoading ? (
+                <div style={{ textAlign: 'center', padding: '24px', color: 'var(--ro-text-muted)', fontSize: '11px' }}>Carregando...</div>
+              ) : players.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '24px' }}>
+                  <p style={{ fontSize: '11px', color: 'var(--ro-text-muted)', marginBottom: '10px' }}>Nenhum personagem</p>
+                  <Link href="/create-character">
+                    <button className="ro-btn-primary font-[family-name:var(--font-pixel)]" style={{ padding: '6px 12px', fontSize: '9px' }}>CRIAR</button>
+                  </Link>
+                </div>
+              ) : (
+                players.map((p) => (
+                  <div
+                    key={p.id}
+                    className={`ro-list-item ${selected?.id === p.id ? 'selected' : ''}`}
+                    style={{ cursor: 'pointer', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}
+                    onClick={() => setSelected(p)}
+                  >
+                    <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '14px' }}>{p.name}</span>
+                    <span style={{ fontSize: '9px', color: selected?.id === p.id ? '#1a3050' : 'var(--ro-text-muted)' }}>
+                      Lv {p.baseLevel} {p.jobClass}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
-          <ScrollArea className="h-[300px] lg:h-[calc(100vh-280px)]">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-32">
-                <p className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">
-                  Carregando...
-                </p>
-              </div>
-            ) : players.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 gap-4">
-                <p className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground text-center">
-                  Nenhum personagem encontrado
-                </p>
-                <Link href="/create-character">
-                  <Button className="pixel-button font-[family-name:var(--font-pixel)] text-[10px]">
-                    CRIAR PRIMEIRO
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {players.map((player) => (
-                  <button
-                    key={player.id}
-                    onClick={() => handleSelectPlayer(player)}
-                    className={`w-full p-3 text-left transition-all ${
-                      selectedPlayer?.id === player.id
-                        ? 'bg-primary/20 border-2 border-primary'
-                        : 'bg-muted/30 border-2 border-transparent hover:border-border'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`${CLASS_COLORS[player.jobClass]}`}>
-                        {CLASS_ICONS[player.jobClass]}
+          {/* Character detail */}
+          <div className="ro-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {selected ? (
+              <>
+                <div className="ro-panel-header" style={{ justifyContent: 'space-between' }}>
+                  <span className="font-[family-name:var(--font-pixel)]" style={{ fontSize: '10px' }}>{selected.name}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--ro-text-muted)' }}>{selected.jobClass} · Lv {selected.baseLevel}</span>
+                </div>
+                <div style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
+
+                  {/* Stats grid */}
+                  <div className="ro-section-label">Atributos</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px', marginBottom: '12px' }}>
+                    {[
+                      ['STR', selected.str], ['AGI', selected.agi], ['VIT', selected.vit],
+                      ['INT', selected.intelligence], ['DEX', selected.dex], ['LUK', selected.luk],
+                    ].map(([label, val]) => (
+                      <div key={label} style={{ background: 'rgba(157,178,219,0.1)', border: '1px solid var(--ro-border)', borderRadius: '6px', padding: '6px 8px' }}>
+                        <div style={{ fontSize: '8px', fontWeight: 600, color: 'var(--ro-text-muted)' }}>{label}</div>
+                        <div className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ro-text-accent)' }}>{val}</div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground truncate">
-                          {player.name}
-                        </p>
-                        <p className="font-[family-name:var(--font-pixel-body)] text-sm text-muted-foreground">
-                          Lv.{player.baseLevel} {player.jobClass}
-                        </p>
+                    ))}
+                  </div>
+
+                  {/* HP / SP */}
+                  <div className="ro-section-label">Vida e Mana</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 700, color: '#B02020' }}>HP</span>
+                        <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '13px', color: 'var(--ro-text-muted)' }}>{selected.hpCurrent}/{selected.hpMax}</span>
                       </div>
+                      <RoBar current={selected.hpCurrent} max={selected.hpMax} variant="hp" />
                     </div>
-                  </button>
-                ))}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 700, color: '#2050D0' }}>SP</span>
+                        <span className="font-[family-name:var(--font-pixel-body)]" style={{ fontSize: '13px', color: 'var(--ro-text-muted)' }}>{selected.spCurrent}/{selected.spMax}</span>
+                      </div>
+                      <RoBar current={selected.spCurrent} max={selected.spMax} variant="sp" />
+                    </div>
+                  </div>
+
+                  {/* Points */}
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{ fontSize: '10px', color: 'var(--ro-text-muted)' }}>Status Pts: <strong style={{ color: 'var(--ro-text-accent)' }}>{selected.statPoints}</strong></div>
+                    <div style={{ fontSize: '10px', color: 'var(--ro-text-muted)' }}>Skill Pts: <strong style={{ color: 'var(--ro-text-accent)' }}>{selected.skillPoints}</strong></div>
+                    <div style={{ fontSize: '10px', color: 'var(--ro-text-muted)' }}>Zenny: <strong style={{ color: 'var(--ro-zenny)' }}>{selected.zenny.toLocaleString()} z</strong></div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="ro-btn-primary font-[family-name:var(--font-pixel)]" style={{ flex: 1, padding: '10px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }} onClick={handlePlay}>
+                      <Play style={{ width: '14px', height: '14px' }} /> JOGAR
+                    </button>
+                    <button className="ro-btn-ghost" style={{ padding: '10px 14px', fontSize: '11px', color: '#B02020', borderColor: '#D09090' }} disabled={isDeleting} onClick={handleDelete}>
+                      {isDeleting ? '...' : '🗑'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '12px', color: 'var(--ro-text-muted)' }}>Selecione um personagem</span>
               </div>
             )}
-          </ScrollArea>
-        </div>
-
-        {/* Character Details */}
-        <div className="flex-1 game-panel p-4 lg:p-6">
-          {selectedPlayer ? (
-            <div className="h-full flex flex-col">
-              {/* Character Header */}
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="font-[family-name:var(--font-pixel)] text-lg text-foreground mb-1">
-                    {selectedPlayer.name}
-                  </h2>
-                  <div className={`flex items-center gap-2 ${CLASS_COLORS[selectedPlayer.jobClass]}`}>
-                    {CLASS_ICONS[selectedPlayer.jobClass]}
-                    <span className="font-[family-name:var(--font-pixel-body)] text-xl">
-                      {selectedPlayer.jobClass}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-[family-name:var(--font-pixel)] text-sm text-primary">
-                    LEVEL {selectedPlayer.baseLevel}
-                  </p>
-                  <p className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">
-                    {selectedPlayer.zenny.toLocaleString()} Zeny
-                  </p>
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                <StatBox label="STR" value={selectedPlayer.str} />
-                <StatBox label="AGI" value={selectedPlayer.agi} />
-                <StatBox label="VIT" value={selectedPlayer.vit} />
-                <StatBox label="INT" value={selectedPlayer.intelligence} />
-                <StatBox label="DEX" value={selectedPlayer.dex} />
-                <StatBox label="LUK" value={selectedPlayer.luk} />
-              </div>
-
-              {/* HP/SP Bars */}
-              <div className="space-y-3 mb-6">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">HP</span>
-                    <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">
-                      {selectedPlayer.hpCurrent}/{selectedPlayer.hpMax}
-                    </span>
-                  </div>
-                  <div className="hp-bar h-4 w-full">
-                    <div
-                      className="hp-bar-fill h-full transition-all"
-                      style={{ width: `${(selectedPlayer.hpCurrent / selectedPlayer.hpMax) * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">SP</span>
-                    <span className="font-[family-name:var(--font-pixel-body)] text-lg text-foreground">
-                      {selectedPlayer.spCurrent}/{selectedPlayer.spMax}
-                    </span>
-                  </div>
-                  <div className="mp-bar h-4 w-full">
-                    <div
-                      className="mp-bar-fill h-full transition-all"
-                      style={{ width: `${(selectedPlayer.spCurrent / selectedPlayer.spMax) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                <div>
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">Status Points: </span>
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-primary">{selectedPlayer.statPoints}</span>
-                </div>
-                <div>
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-muted-foreground">Skill Points: </span>
-                  <span className="font-[family-name:var(--font-pixel-body)] text-lg text-accent">{selectedPlayer.skillPoints}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="mt-auto flex gap-3">
-                <Button
-                  onClick={handlePlayClick}
-                  className="flex-1 h-12 pixel-button font-[family-name:var(--font-pixel)] text-xs"
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  JOGAR
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDeletePlayer}
-                  disabled={isDeleting}
-                  className="h-12 px-4 font-[family-name:var(--font-pixel)] text-xs"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="font-[family-name:var(--font-pixel-body)] text-xl text-muted-foreground">
-                Selecione um personagem para ver detalhes
-              </p>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </main>
-  )
-}
-
-function StatBox({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="bg-muted/30 p-3 border border-border">
-      <p className="font-[family-name:var(--font-pixel)] text-[10px] text-muted-foreground mb-1">
-        {label}
-      </p>
-      <p className="font-[family-name:var(--font-pixel)] text-lg text-primary">
-        {value}
-      </p>
-    </div>
   )
 }
