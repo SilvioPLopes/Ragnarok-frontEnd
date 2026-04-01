@@ -107,3 +107,29 @@ export interface ClassChangeRequirement {
 
 /** Alias para compatibilidade com imports existentes em select-character e class-change-panel */
 export type Player = PlayerResponse
+
+// ─── NPC types ────────────────────────────────────────────────────────────────
+
+export interface NpcDTO {
+  id: number
+  name: string
+  type: 'SHOP' | 'HEAL' | 'WARP' | 'NPC'
+  x: number
+  y: number
+  spriteRef: string
+}
+
+export interface NpcShopResponse {
+  npcName: string
+  items: { itemId: number; itemName: string; price: number }[]
+}
+
+export interface NpcBuyRequest  { playerId: number; itemId: number; amount: number }
+export interface NpcBuyResponse { message: string; itemName: string; remainingZenny: number }
+
+export interface NpcHealResponse { message: string; hp: number; sp: number }
+
+export interface NpcWarpResponse { newMap: string; x: number; y: number }
+
+export interface NpcSellRequest  { playerId: number; playerItemId: string; quantity: number }
+export interface NpcSellResponse { message: string; remainingZenny: number }

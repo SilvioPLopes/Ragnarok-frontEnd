@@ -12,15 +12,17 @@ import { SkillPanel } from '@/components/game/skill-panel'
 import { InventoryPanel } from '@/components/game/inventory-panel'
 import { StatusPanel } from '@/components/game/status-panel'
 import { ClassChangePanel } from '@/components/game/class-change-panel'
+import { CityPanel } from '@/components/game/city-panel'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Map, Sparkles, Backpack, User, ArrowUpCircle, Menu, Skull, ScrollText } from 'lucide-react'
+import { Map, Sparkles, Backpack, User, ArrowUpCircle, Menu, Skull, ScrollText, Store } from 'lucide-react'
 import { toast } from 'sonner'
 
-type TabValue = 'map' | 'skills' | 'inventory' | 'status' | 'class' | 'log'
+type TabValue = 'map' | 'city' | 'skills' | 'inventory' | 'status' | 'class' | 'log'
 
 const TABS: { value: TabValue; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
   { value: 'map',       label: 'MAPA',   Icon: Map },
+  { value: 'city',      label: 'CIDADE', Icon: Store },
   { value: 'skills',    label: 'SKILLS', Icon: Sparkles },
   { value: 'inventory', label: 'ITENS',  Icon: Backpack },
   { value: 'status',    label: 'STATUS', Icon: User },
@@ -82,8 +84,21 @@ export default function GamePage() {
     )
   }
 
+  const handleWarp = useCallback(async (newMap: string) => {
+    await refreshMapInfo()
+    await refreshPlayer()
+    toast.success(`Chegou em ${newMap}`)
+  }, [refreshMapInfo, refreshPlayer])
+
   const TAB_COMPONENTS: Record<TabValue, React.ReactNode> = {
     map:       <MapPanel />,
+    city:      playerId ? (
+      <CityPanel
+        mapName={player?.mapName ?? 'prontera'}
+        playerId={playerId}
+        onWarp={(newMap) => handleWarp(newMap)}
+      />
+    ) : null,
     skills:    <SkillPanel />,
     inventory: <InventoryPanel />,
     status:    <StatusPanel />,

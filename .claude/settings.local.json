@@ -37,7 +37,8 @@
       "Bash(find /c/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/lib -name *.ts -o -name *.tsx)",
       "WebSearch",
       "WebFetch(domain:www.divine-pride.net)",
-      "Bash(cat C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/.superpowers/brainstorm/*/state/server-info)"
+      "Bash(cat C:/Users/silve/IdeaProjects/ragnarok-simulator/ragnarok-front/.superpowers/brainstorm/*/state/server-info)",
+      "Bash(grep -v \"//.*zenny\")"
     ]
   }
 }
